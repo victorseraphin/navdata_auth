@@ -2,13 +2,13 @@ package br.com.navdata.auth.response;
 
 public class TokenValidationResponse {
     private boolean valid;
-    private String username;
+    private String email;
 
     public TokenValidationResponse() {}
 
-    public TokenValidationResponse(boolean valid, String username) {
+    public TokenValidationResponse(boolean valid, String email) {
         this.valid = valid;
-        this.username = username;
+        this.email = email;
     }
 
     public boolean isValid() {
@@ -19,11 +19,11 @@ public class TokenValidationResponse {
         this.valid = valid;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

@@ -11,18 +11,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.navdata.auth.dto.LoginDTO;
-import br.com.navdata.auth.dto.RegisterUserDTO;
+import br.com.navdata.auth.dto.SystemUserDTO;
 import br.com.navdata.auth.dto.TokenValidationDTO;
-import br.com.navdata.auth.entity.TokenEntity;
-import br.com.navdata.auth.entity.UserEntity;
 import br.com.navdata.auth.repository.TokenRepository;
 import br.com.navdata.auth.response.AuthResponse;
 import br.com.navdata.auth.response.TokenValidationResponse;
 import br.com.navdata.auth.service.AuthService;
 import br.com.navdata.auth.service.JwtService;
-import br.com.navdata.auth.service.UserService;
+import br.com.navdata.auth.service.SystemUserService;
 
-import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,7 +31,7 @@ public class AuthController {
     private JwtService jwtService;
 
 	@Autowired
-    private UserService userService;
+    private SystemUserService systemUserService;
     
 	@Autowired
     private AuthService authService;
@@ -91,8 +88,8 @@ public class AuthController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterUserDTO request) {
-        userService.registerUser(request);
+    public ResponseEntity<String> register(@RequestBody SystemUserDTO request) {
+    	systemUserService.criar(request);
         return ResponseEntity.ok("Usuário registrado com sucesso!");
     }
     
@@ -118,3 +115,4 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 }
+

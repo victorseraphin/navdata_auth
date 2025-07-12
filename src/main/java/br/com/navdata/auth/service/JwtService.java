@@ -3,7 +3,6 @@ package br.com.navdata.auth.service;
 // JwtService.java
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,12 +11,12 @@ import org.springframework.stereotype.Service;
 
 import br.com.navdata.auth.entity.TokenEntity;
 import br.com.navdata.auth.repository.TokenRepository;
-import br.com.navdata.auth.response.TokenValidationResponse;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.crypto.SecretKey;
 
@@ -32,16 +31,15 @@ public class JwtService {
 	@Autowired
     private TokenRepository tokenRepository;
 	
-    private final long accessTokenValidity = 15 * 60 * 1000; // 15 min
-    private final long refreshTokenValidity = 7 * 24 * 60 * 60 * 1000; // 7 dias
+    private final long accessTokenValidity = TimeUnit.HOURS.toMillis(24); //15 * 60 * 1000; // 15 min
     
     public JwtService(SecretKey secretKey) {
         this.secretKey = secretKey;
     }
 
-    public String generateAccessToken(String username) {
+    public String generateAccessToken(String email) {
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(email)
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidity))
                 .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();

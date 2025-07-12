@@ -15,6 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import br.com.navdata.auth.filter.JwtAuthenticationFilter;
+import br.com.navdata.auth.service.JwtService;
 import io.jsonwebtoken.security.Keys;
 
 @Configuration
@@ -24,12 +25,18 @@ public class SecurityConfig {
     private String jwtSecret;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtSecret);
+    public SecretKey secretKey() {
+        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtService jwtService) throws Exception {
+        JwtAuthenticationFilter jwtFilter = new JwtAuthenticationFilter(jwtService); // ✅ agora você passa o serviço que consulta o banco
 
         return http
             .csrf(csrf -> csrf.disable())
-            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // importante para JWT
+            .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
                     "/api/v1/auth/login",
@@ -46,11 +53,5 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
-    }
-    
-    @Bean
-    public SecretKey secretKey() {
-        byte[] keyBytes = Base64.getDecoder().decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
     }
 }

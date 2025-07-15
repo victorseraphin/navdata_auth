@@ -123,6 +123,14 @@ public class AuthService {
 			mapper.createFromDTO(request, entity);
 
 			// Cria automaticamente o System Auth/Core
+			if (!systemRepository.existsByNameAndDeletedAtIsNull("System Core")) {
+				SystemEntity system = new SystemEntity();
+				system.setName("NavSystemCore");
+				systemRepository.save(system);
+				entity.setSystems(Collections.singletonList(system));
+			}
+
+			// Cria automaticamente o System Auth/Core
 			if (!systemUnitRepository.existsByDocumento("0000000000")) {
 				SystemUnitEntity unit = new SystemUnitEntity();
 				unit.setName("NavSystemCore");
@@ -130,16 +138,9 @@ public class AuthService {
 				unit.setInscricao("0000000000");
 				unit.setMatricula("0000000000");
 				unit.setLocalizacao("Pirassununga");
+				unit.setSystems(entity.getSystems());
 				systemUnitRepository.save(unit);
 				entity.setSystemUnit(unit);
-			}
-
-			// Cria automaticamente o System Auth/Core
-			if (!systemRepository.existsByNameAndDeletedAtIsNull("System Core")) {
-				SystemEntity system = new SystemEntity();
-				system.setName("NavSystemCore");
-				systemRepository.save(system);
-				entity.setSystems(Collections.singletonList(system));
 			}
 			entity.setIsMaster(true);
 

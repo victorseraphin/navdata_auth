@@ -50,11 +50,18 @@ public class JwtService {
         return UUID.randomUUID().toString();
     }
     
-    public boolean isTokenValid(String token) {
+    public boolean isTokenValid(String token, String systemName) {
     	Optional<TokenEntity> tokenOpt = tokenRepository.findByTokenAndValidTrueAndFimVigenciaAfter(token, LocalDateTime.now());
 
         if (tokenOpt.isEmpty()) {
             return false; // Token não encontrado, inválido ou expirado no banco
+        }
+        
+        TokenEntity tokenEntity = tokenOpt.get();
+
+        // Verifica se o token pertence ao sistema correto
+        if (!systemName.equalsIgnoreCase(tokenEntity.getSystemName())) {
+            return false; // Token não pertence ao sistema informado
         }
 
         try {

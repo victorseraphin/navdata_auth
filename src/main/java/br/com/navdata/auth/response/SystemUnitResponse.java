@@ -1,6 +1,6 @@
-package br.com.navdata.auth.dto;
+package br.com.navdata.auth.response;
 
-public class SystemUnitDTO {
+public class SystemUnitResponse {
 	
 	private Integer id;
     private String name;

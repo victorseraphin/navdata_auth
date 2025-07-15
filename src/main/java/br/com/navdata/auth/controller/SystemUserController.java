@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import br.com.navdata.auth.dto.SystemUserDTO;
+import br.com.navdata.auth.request.SystemUserRequest;
 import br.com.navdata.auth.response.SystemUserResponse;
 import br.com.navdata.auth.service.SystemUserService;
 
@@ -33,14 +33,14 @@ public class SystemUserController {
     }
 
     @PostMapping
-    public ResponseEntity<String> criar(@Valid @RequestBody SystemUserDTO dto) {
-    	systemUserService.criar(dto);
-    	return ResponseEntity.ok("Usuário registrado com sucesso!");
+    public ResponseEntity<SystemUserResponse> criar(@Valid @RequestBody SystemUserRequest request) {
+    	SystemUserResponse criado = systemUserService.criar(request);
+    	return ResponseEntity.ok(criado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SystemUserResponse> atualizar(@PathVariable Integer id, @Valid @RequestBody SystemUserResponse response) {
-    	SystemUserResponse atualizado = systemUserService.atualizar(id, response);
+    public ResponseEntity<SystemUserResponse> atualizar(@PathVariable Integer id, @Valid @RequestBody SystemUserRequest request) {
+    	SystemUserResponse atualizado = systemUserService.atualizar(id, request);
         return ResponseEntity.ok(atualizado);
     }
 

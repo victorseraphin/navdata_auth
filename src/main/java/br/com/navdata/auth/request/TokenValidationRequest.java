@@ -1,9 +1,9 @@
-package br.com.navdata.auth.dto;
+package br.com.navdata.auth.request;
 
-public class TokenValidationDTO {
+public class TokenValidationRequest {
 	private String token;
 
-    public TokenValidationDTO() {}
+    public TokenValidationRequest() {}
 
     public String getToken() {
         return token;

@@ -6,7 +6,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import br.com.navdata.auth.dto.SystemUnitDTO;
+import br.com.navdata.auth.request.SystemUnitRequest;
+import br.com.navdata.auth.response.SystemUnitResponse;
 import br.com.navdata.auth.service.SystemUnitService;
 import jakarta.validation.Valid;
 
@@ -17,34 +18,34 @@ import java.util.List;
 public class SystemUnitController {
 
 	@Autowired
-    private SystemUnitService service;
-
-    @GetMapping
-    public List<SystemUnitDTO> listar() {
-    	return service.listarTodos();
+    private SystemUnitService systemUnitService;
+	
+	@GetMapping    
+    public List<SystemUnitResponse> listar() {
+    	return systemUnitService.listarTodos();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SystemUnitDTO> buscar(@PathVariable Integer id) throws JsonProcessingException {
-        SystemUnitDTO response = service.buscarPorId(id);
+    public ResponseEntity<SystemUnitResponse> buscar(@PathVariable Integer id) throws JsonProcessingException {
+    	SystemUnitResponse response = systemUnitService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public ResponseEntity<SystemUnitDTO> criar(@Valid @RequestBody SystemUnitDTO dto) {
-    	SystemUnitDTO criado = service.criar(dto);
+    public ResponseEntity<SystemUnitResponse> criar(@Valid @RequestBody SystemUnitRequest request) {    	
+    	SystemUnitResponse criado = systemUnitService.criar(request);
     	return ResponseEntity.ok(criado);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SystemUnitDTO> atualizar(@PathVariable Integer id, @Valid @RequestBody SystemUnitDTO dto) {
-    	SystemUnitDTO atualizado = service.atualizar(id, dto);
+    public ResponseEntity<SystemUnitResponse> atualizar(@PathVariable Integer id, @Valid @RequestBody SystemUnitRequest request) {
+    	SystemUnitResponse atualizado = systemUnitService.atualizar(id, request);
         return ResponseEntity.ok(atualizado);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
-        service.deletar(id);
+    	systemUnitService.deletar(id);
         return ResponseEntity.noContent().build();
     }
 }

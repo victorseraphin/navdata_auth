@@ -11,10 +11,11 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import br.com.navdata.auth.dto.SystemUserDTO;
 import br.com.navdata.auth.entity.SystemUserEntity;
 import br.com.navdata.auth.mapper.SystemUserMapper;
+import br.com.navdata.auth.repository.SystemUnitRepository;
 import br.com.navdata.auth.repository.SystemUserRepository;
+import br.com.navdata.auth.request.SystemUserRequest;
 import br.com.navdata.auth.response.SystemUserResponse;
 
 @Service
@@ -22,6 +23,9 @@ public class SystemUserService {
 
 	@Autowired
     private SystemUserRepository systemUserRepository;
+
+	@Autowired
+    private SystemUnitRepository systemUnitRepository;
 	
 	@Autowired
 	private SystemUserMapper mapper;
@@ -33,47 +37,51 @@ public class SystemUserService {
     }
 
     public List<SystemUserResponse> listarTodos() {
-        return systemUserRepository.findAll()
+        return systemUserRepository.findAllByDeletedAtIsNull()
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
     public SystemUserResponse buscarPorId(Integer id) throws JsonProcessingException {
-        SystemUserEntity entity = systemUserRepository.findById(id)
+        SystemUserEntity entity = systemUserRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário com ID " + id + " não encontrado"));       
         
         return mapper.toResponse(entity);
     }    
 
-    public void criar(SystemUserDTO systemUserDTO) {
+    public SystemUserResponse criar(SystemUserRequest request) {
     	
-        if (systemUserRepository.existsByEmail(systemUserDTO.getEmail())) {
-            throw new RuntimeException("Usuário já existe");
+    	if (systemUserRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário já existe");
+        }
+    	
+    	if (!systemUnitRepository.existsByIdAndDeletedAtIsNull(request.getSystemUnitId())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa não está ativa ou nao cadastrada!");
         }
 
-        SystemUserEntity userEntity = new SystemUserEntity();
-        systemUserDTO.setPassword(passwordEncoder.encode(systemUserDTO.getPassword()));
-        
-        mapper.createFromDTO(systemUserDTO, userEntity);
+        SystemUserEntity entity = new SystemUserEntity();
+        request.setPassword(passwordEncoder.encode(request.getPassword())); 
+        request.setActive("Y");
+        mapper.createFromDTO(request, entity);
 
-        systemUserRepository.save(userEntity);
+        return mapper.toResponse(systemUserRepository.save(entity));
     }
 
-    public SystemUserResponse atualizar(Integer id, SystemUserResponse systemUserDTO) {
-        return systemUserRepository.findById(id).map(userEntity -> {            
-            mapper.updateFromDTO(systemUserDTO, userEntity);
-            userEntity.setUpdated_at(LocalDateTime.now()); 
-            userEntity = systemUserRepository.save(userEntity);
-            return mapper.toResponse(userEntity); 
-        }).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public SystemUserResponse atualizar(Integer id, SystemUserRequest request) {
+        return systemUserRepository.findById(id).map(entity -> {            
+            mapper.updateFromDTO(request, entity);
+            entity.setUpdatedAt(LocalDateTime.now()); 
+            entity = systemUserRepository.save(entity);
+            return mapper.toResponse(entity); 
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
     }
 
     public void deletar(Integer id) {
         SystemUserEntity userEntity = systemUserRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
         
-        userEntity.setDeleted_at(LocalDateTime.now());
+        userEntity.setDeletedAt(LocalDateTime.now());
         userEntity.setActive("N");
         systemUserRepository.save(userEntity); 
 

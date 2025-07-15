@@ -1,12 +1,17 @@
 package br.com.navdata.auth.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -39,9 +44,6 @@ public class SystemUserEntity {
     @Column(name = "password", nullable = false, length = 255)
     private String password;
 
-    @Column(name = "system_unit_id")
-    private Integer systemUnitId;
-
     @Column(name = "frontpage_id")
     private Integer frontpageId;
 
@@ -56,15 +58,40 @@ public class SystemUserEntity {
 
     @Column(name = "remember_token", length = 100)
     private String rememberToken;
+    
+    @Column(name = "is_master", nullable = false)
+    private boolean isMaster = false;
 
     @Column(name = "created_at")
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deleted_at;
+    private LocalDateTime deletedAt;
+
+    @ManyToOne
+    @JoinColumn(name = "system_unit_id")
+    private SystemUnitEntity systemUnit;
+    
+    @ManyToMany
+    @JoinTable(name = "system_user_system",
+        joinColumns = @JoinColumn(name = "system_user_id"),
+        inverseJoinColumns = @JoinColumn(name = "system_id"))
+    private List<SystemEntity> systems;
+
+    @ManyToMany
+    @JoinTable(name = "system_user_system_group",
+        joinColumns = @JoinColumn(name = "system_user_id"),
+        inverseJoinColumns = @JoinColumn(name = "system_group_id"))
+    private List<SystemGroupEntity> groups;
+
+    @ManyToMany
+    @JoinTable(name = "system_user_system_program",
+        joinColumns = @JoinColumn(name = "system_user_id"),
+        inverseJoinColumns = @JoinColumn(name = "system_program_id"))
+    private List<SystemProgramEntity> programs;
 
 	public Integer getId() {
 		return id;
@@ -130,14 +157,6 @@ public class SystemUserEntity {
 		this.password = password;
 	}
 
-	public Integer getSystemUnitId() {
-		return systemUnitId;
-	}
-
-	public void setSystemUnitId(Integer systemUnitId) {
-		this.systemUnitId = systemUnitId;
-	}
-
 	public Integer getFrontpageId() {
 		return frontpageId;
 	}
@@ -178,28 +197,69 @@ public class SystemUserEntity {
 		this.rememberToken = rememberToken;
 	}
 
-	public LocalDateTime getCreated_at() {
-		return created_at;
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
 	}
 
-	public void setCreated_at(LocalDateTime created_at) {
-		this.created_at = created_at;
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
 	}
 
-	public LocalDateTime getUpdated_at() {
-		return updated_at;
+	public LocalDateTime getUpdatedAt() {
+		return updatedAt;
 	}
 
-	public void setUpdated_at(LocalDateTime updated_at) {
-		this.updated_at = updated_at;
+	public void setUpdatedAt(LocalDateTime updatedAt) {
+		this.updatedAt = updatedAt;
 	}
 
-	public LocalDateTime getDeleted_at() {
-		return deleted_at;
+	public LocalDateTime getDeletedAt() {
+		return deletedAt;
 	}
 
-	public void setDeleted_at(LocalDateTime deleted_at) {
-		this.deleted_at = deleted_at;
+	public void setDeletedAt(LocalDateTime deletedAt) {
+		this.deletedAt = deletedAt;
 	}
 
+	public SystemUnitEntity getSystemUnit() {
+		return systemUnit;
+	}
+
+	public void setSystemUnit(SystemUnitEntity systemUnit) {
+		this.systemUnit = systemUnit;
+	}
+
+	public List<SystemEntity> getSystems() {
+		return systems;
+	}
+
+	public void setSystems(List<SystemEntity> systems) {
+		this.systems = systems;
+	}
+
+	public List<SystemGroupEntity> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(List<SystemGroupEntity> groups) {
+		this.groups = groups;
+	}
+
+	public List<SystemProgramEntity> getPrograms() {
+		return programs;
+	}
+
+	public void setPrograms(List<SystemProgramEntity> programs) {
+		this.programs = programs;
+	}
+
+	public boolean getIsMaster() {
+		return isMaster;
+	}
+
+	public void setIsMaster(boolean isMaster) {
+		this.isMaster = isMaster;
+	}
+
+	
 }

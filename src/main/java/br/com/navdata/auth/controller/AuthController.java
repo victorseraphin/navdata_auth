@@ -1,6 +1,5 @@
 package br.com.navdata.auth.controller;
 
-// AuthController.java
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,15 +9,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import br.com.navdata.auth.dto.LoginDTO;
-import br.com.navdata.auth.dto.SystemUserDTO;
-import br.com.navdata.auth.dto.TokenValidationDTO;
 import br.com.navdata.auth.repository.TokenRepository;
+import br.com.navdata.auth.request.LoginRequest;
+import br.com.navdata.auth.request.SystemUserRequest;
+import br.com.navdata.auth.request.TokenValidationRequest;
 import br.com.navdata.auth.response.AuthResponse;
+import br.com.navdata.auth.response.SystemUserResponse;
 import br.com.navdata.auth.response.TokenValidationResponse;
 import br.com.navdata.auth.service.AuthService;
 import br.com.navdata.auth.service.JwtService;
-import br.com.navdata.auth.service.SystemUserService;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,23 +28,19 @@ public class AuthController {
 
 	@Autowired
     private JwtService jwtService;
-
-	@Autowired
-    private SystemUserService systemUserService;
     
 	@Autowired
     private AuthService authService;
     
     @Autowired
     private TokenRepository tokenRepository;
-    
 
     // Aqui armazenamos refresh tokens em memória (trocar por DB ou Redis na prática)
     private final Map<String, String> refreshTokens = new ConcurrentHashMap<>();
     
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginDTO loginDTO, HttpServletResponse response) {
-        AuthResponse result = authService.login(loginDTO, response);
+    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request, HttpServletResponse response, @RequestHeader("X-System-Name") String systemName) {
+        AuthResponse result = authService.login(request, response, systemName);
         return ResponseEntity.ok(result);
     }//*/    
 
@@ -88,17 +83,17 @@ public class AuthController {
     }
     
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody SystemUserDTO request) {
-    	systemUserService.criar(request);
-        return ResponseEntity.ok("Usuário registrado com sucesso!");
-    }
+    public ResponseEntity<SystemUserResponse> register(@RequestBody SystemUserRequest request) {
+    	SystemUserResponse criado = authService.registrar(request);
+        return ResponseEntity.ok(criado);
+    }//*/
     
     @PostMapping("/validate")
-    public ResponseEntity<TokenValidationResponse> validateToken(@RequestBody TokenValidationDTO dto) {
-        boolean valido = jwtService.isTokenValid(dto.getToken());
+    public ResponseEntity<TokenValidationResponse> validateToken(@RequestBody TokenValidationRequest request, @RequestHeader("X-System-Name") String systemName) {
+        boolean valido = jwtService.isTokenValid(request.getToken(), systemName);
 
         if (valido) {
-            String username = jwtService.extractUsername(dto.getToken());
+            String username = jwtService.extractUsername(request.getToken());
             return ResponseEntity.ok(new TokenValidationResponse(true, username));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new TokenValidationResponse(false, null));
@@ -106,7 +101,7 @@ public class AuthController {
     }
     
     @PutMapping("/revoke")
-    public ResponseEntity<Void> revokeToken(@RequestBody TokenValidationDTO request) {
+    public ResponseEntity<Void> revokeToken(@RequestBody TokenValidationRequest request) {
         tokenRepository.findByTokenAndValidTrue(request.getToken())
             .ifPresent(token -> {
                 token.setValid(false);

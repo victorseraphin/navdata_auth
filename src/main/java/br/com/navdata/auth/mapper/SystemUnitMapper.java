@@ -3,16 +3,17 @@ package br.com.navdata.auth.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingTarget;
 
-import br.com.navdata.auth.dto.SystemUnitDTO;
 import br.com.navdata.auth.entity.SystemUnitEntity;
+import br.com.navdata.auth.request.SystemUnitRequest;
+import br.com.navdata.auth.response.SystemUnitResponse;
 
 @Mapper(componentModel = "spring")
-public interface SystemUnitMapper {
+public interface SystemUnitMapper {   
 
-    SystemUnitEntity toEntity(SystemUnitDTO dto);
+    SystemUnitResponse toResponse(SystemUnitEntity entity);    
 
-    void updateFromDTO(SystemUnitDTO dto, @MappingTarget SystemUnitEntity entity);
+    void createFromDTO(SystemUnitRequest request, @MappingTarget SystemUnitEntity entity);
 
-    SystemUnitDTO toDTO(SystemUnitEntity entity);
+    void updateFromDTO(SystemUnitRequest request, @MappingTarget SystemUnitEntity entity);
 
 }

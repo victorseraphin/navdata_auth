@@ -1,6 +1,6 @@
-package br.com.navdata.auth.dto;
+package br.com.navdata.auth.request;
 
-public class LoginDTO {
+public class LoginRequest {
     private String email;
     private String password;
 

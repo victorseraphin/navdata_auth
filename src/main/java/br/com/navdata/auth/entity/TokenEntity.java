@@ -7,15 +7,15 @@ import java.time.LocalDateTime;
 @Table(name = "WS_TOKEN")
 public class TokenEntity {
 
-    @Id
+	@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 512, unique = true, nullable = false)
     private String token;
-
+    
     @Column(nullable = false)
-    private String username;
+    private String email;
 
     @Column(name = "inicio_vigencia", nullable = false)
     private LocalDateTime inicioVigencia;
@@ -25,15 +25,31 @@ public class TokenEntity {
 
     @Column(nullable = false)
     private boolean valid;
+    
+    @Column(name = "system_unit_id")
+    private Integer systemUnitId;
+    
+    @Column(name = "system_user_id")
+    private Integer systemUserId;
+
+    @Column(name = "system_id")
+    private Integer systemId;
+
+    @Column(name = "system_name")
+    private String systemName;
 
     public TokenEntity() {}
 
-    public TokenEntity(String token, String username, LocalDateTime inicioVigencia, LocalDateTime fimVigencia, boolean valid) {
+    public TokenEntity(String token, String email, LocalDateTime inicioVigencia, LocalDateTime fimVigencia, boolean valid, Integer systemUnitId, Integer systemUserId, Integer systemId, String systemName) {
         this.token = token;
-        this.username = username;
+        this.email = email;
         this.inicioVigencia = inicioVigencia;
         this.fimVigencia = fimVigencia;
         this.valid = valid;
+        this.systemUnitId = systemUnitId;
+        this.systemUserId = systemUserId;
+        this.systemId = systemId;
+        this.systemName = systemName;
     }
 
 	public Long getId() {
@@ -52,12 +68,12 @@ public class TokenEntity {
 		this.token = token;
 	}
 
-	public String getUsername() {
-		return username;
+	public String getEmail() {
+		return email;
 	}
 
-	public void setUsername(String username) {
-		this.username = username;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public LocalDateTime getInicioVigencia() {
@@ -84,5 +100,40 @@ public class TokenEntity {
 		this.valid = valid;
 	}
 
-    
+	public Integer getSystemUnitId() {
+		return systemUnitId;
+	}
+
+	public void setSystemUnitId(Integer systemUnitId) {
+		this.systemUnitId = systemUnitId;
+	}
+
+	public Integer getSystemUserId() {
+		return systemUserId;
+	}
+
+	public void setSystemUserId(Integer systemUserId) {
+		this.systemUserId = systemUserId;
+	}
+
+	public Integer getSystemId() {
+		return systemId;
+	}
+
+	public void setSystemId(Integer systemId) {
+		this.systemId = systemId;
+	}
+
+	public String getSystemName() {
+		return systemName;
+	}
+
+	public void setSystemName(String systemName) {
+		this.systemName = systemName;
+	}
+
+	
+
+	
+	    
 }

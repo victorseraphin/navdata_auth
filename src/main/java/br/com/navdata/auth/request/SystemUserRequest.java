@@ -1,6 +1,6 @@
-package br.com.navdata.auth.response;
+package br.com.navdata.auth.request;
 
-public class SystemUserResponse {
+public class SystemUserRequest {
 
 	private Integer id;
     private String name;
@@ -9,12 +9,14 @@ public class SystemUserResponse {
     private String fone;
     private String login;
     private String email;
+    private String password; 
     private Integer systemUnitId;
     private Integer frontpageId;
     private String facebookId;
     private String googleId;
     private String active;
     private String rememberToken;
+    
 	public Integer getId() {
 		return id;
 	}
@@ -57,6 +59,12 @@ public class SystemUserResponse {
 	public void setEmail(String email) {
 		this.email = email;
 	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
 	public Integer getSystemUnitId() {
 		return systemUnitId;
 	}
@@ -93,5 +101,5 @@ public class SystemUserResponse {
 	public void setRememberToken(String rememberToken) {
 		this.rememberToken = rememberToken;
 	}
-    
+	
 }

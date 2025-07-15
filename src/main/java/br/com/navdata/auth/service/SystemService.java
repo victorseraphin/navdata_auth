@@ -6,64 +6,64 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import br.com.navdata.auth.entity.SystemUnitEntity;
-import br.com.navdata.auth.mapper.SystemUnitMapper;
-import br.com.navdata.auth.repository.SystemUnitRepository;
-import br.com.navdata.auth.request.SystemUnitRequest;
-import br.com.navdata.auth.response.SystemUnitResponse;
+import br.com.navdata.auth.entity.SystemEntity;
+import br.com.navdata.auth.mapper.SystemMapper;
+import br.com.navdata.auth.repository.SystemRepository;
+import br.com.navdata.auth.request.SystemRequest;
+import br.com.navdata.auth.response.SystemResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class SystemUnitService {
+public class SystemService {
 
 	@Autowired
-    private SystemUnitRepository systemUnitRepository;
+    private SystemRepository systemRepository;
 	
 	@Autowired
-	private SystemUnitMapper mapper;
+	private SystemMapper mapper;
 	
-	public List<SystemUnitResponse> listarTodos() {
-        return systemUnitRepository.findAllByDeletedAtIsNull()
+	public List<SystemResponse> listarTodos() {
+        return systemRepository.findAllByDeletedAtIsNull()
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
-    public SystemUnitResponse buscarPorId(Integer id) throws JsonProcessingException {
-        SystemUnitEntity entity = systemUnitRepository.findByIdAndDeletedAtIsNull(id)
+    public SystemResponse buscarPorId(Integer id) throws JsonProcessingException {
+        SystemEntity entity = systemRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa com ID " + id + " não encontrada"));      
         
         return mapper.toResponse(entity);
     }    
 
-    public SystemUnitResponse criar(SystemUnitRequest request) {
+    public SystemResponse criar(SystemRequest request) {
     	
-        if (systemUnitRepository.existsByDocumento(request.getDocumento())) {
+        if (systemRepository.existsByName(request.getName())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Empresa já existe");
         }
-        SystemUnitEntity entity = new SystemUnitEntity();        
+        SystemEntity entity = new SystemEntity();        
         mapper.createFromDTO(request, entity);
 
-        return mapper.toResponse(systemUnitRepository.save(entity));
+        return mapper.toResponse(systemRepository.save(entity));
     }
 
-    public SystemUnitResponse atualizar(Integer id, SystemUnitRequest request) {
-        return systemUnitRepository.findById(id).map(entity -> {            
+    public SystemResponse atualizar(Integer id, SystemRequest request) {
+        return systemRepository.findById(id).map(entity -> {            
             mapper.updateFromDTO(request, entity);
             entity.setUpdatedAt(LocalDateTime.now()); 
-            entity = systemUnitRepository.save(entity);
+            entity = systemRepository.save(entity);
             return mapper.toResponse(entity); 
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
     }
 
     public void deletar(Integer id) {
-        SystemUnitEntity unitEntity = systemUnitRepository.findById(id)
+        SystemEntity unitEntity = systemRepository.findById(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
         
         unitEntity.setDeletedAt(LocalDateTime.now());
-        systemUnitRepository.save(unitEntity); 
+        systemRepository.save(unitEntity); 
         
     }
     

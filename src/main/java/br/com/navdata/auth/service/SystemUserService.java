@@ -36,21 +36,25 @@ public class SystemUserService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public List<SystemUserResponse> listarTodos() {
-        return systemUserRepository.findAllByDeletedAtIsNull()
+    public List<SystemUserResponse> listarTodos(Integer unitId) {
+        return systemUserRepository.findAllBySystemUnit_IdAndDeletedAtIsNull(unitId)
                 .stream()
                 .map(mapper::toResponse)
                 .toList();
     }
 
-    public SystemUserResponse buscarPorId(Integer id) throws JsonProcessingException {
-        SystemUserEntity entity = systemUserRepository.findByIdAndDeletedAtIsNull(id)
+    public SystemUserResponse buscarPorId(Integer id, Integer unitId) throws JsonProcessingException {
+        SystemUserEntity entity = systemUserRepository.findByIdAndDeletedAtIsNullAndSystemUnit_Id(id,unitId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário com ID " + id + " não encontrado"));       
         
         return mapper.toResponse(entity);
     }    
 
-    public SystemUserResponse criar(SystemUserRequest request) {
+    public SystemUserResponse criar(SystemUserRequest request, Integer unitId) {
+
+        if (request.getSystemUnitId() != unitId) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Problema de validade de Empresa. Consulte o Administrador do Sistema!");
+        }
     	
     	if (systemUserRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário já existe");
@@ -68,8 +72,13 @@ public class SystemUserService {
         return mapper.toResponse(systemUserRepository.save(entity));
     }
 
-    public SystemUserResponse atualizar(Integer id, SystemUserRequest request) {
-        return systemUserRepository.findById(id).map(entity -> {            
+    public SystemUserResponse atualizar(Integer id, SystemUserRequest request, Integer unitId) {
+        return systemUserRepository.findByIdAndDeletedAtIsNullAndSystemUnit_Id(id, unitId).map(entity -> {   
+        	
+        	if (request.getSystemUnitId() != unitId || entity.getSystemUnit().get(0).getId() != unitId) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Problema de validade de Empresa. Consulte o Administrador do Sistema!");
+            }
+        	
             mapper.updateFromDTO(request, entity);
             entity.setUpdatedAt(LocalDateTime.now()); 
             entity = systemUserRepository.save(entity);
@@ -77,9 +86,13 @@ public class SystemUserService {
         }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
     }
 
-    public void deletar(Integer id) {
-        SystemUserEntity userEntity = systemUserRepository.findById(id)
+    public void deletar(Integer id, Integer unitId) {
+        SystemUserEntity userEntity = systemUserRepository.findByIdAndDeletedAtIsNullAndSystemUnit_Id(id, unitId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        
+        if (userEntity.getSystemUnit().get(0).getId() != unitId) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Problema de validade de Empresa. Consulte o Administrador do Sistema!");
+        }
         
         userEntity.setDeletedAt(LocalDateTime.now());
         userEntity.setActive("N");

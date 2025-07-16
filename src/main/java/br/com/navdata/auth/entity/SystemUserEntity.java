@@ -5,6 +5,7 @@ import java.util.List;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -71,9 +72,11 @@ public class SystemUserEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "system_unit_id")
-    private SystemUnitEntity systemUnit;
+	@ManyToMany
+	@JoinTable(name = "system_unit_system_user", // nome da tabela de associação
+			joinColumns = @JoinColumn(name = "system_user_id"), 
+			inverseJoinColumns = @JoinColumn(name = "system_unit_id"))
+	private List<SystemUnitEntity> systemUnit;
     
     @ManyToMany
     @JoinTable(name = "system_user_system",
@@ -221,14 +224,6 @@ public class SystemUserEntity {
 		this.deletedAt = deletedAt;
 	}
 
-	public SystemUnitEntity getSystemUnit() {
-		return systemUnit;
-	}
-
-	public void setSystemUnit(SystemUnitEntity systemUnit) {
-		this.systemUnit = systemUnit;
-	}
-
 	public List<SystemEntity> getSystems() {
 		return systems;
 	}
@@ -258,6 +253,18 @@ public class SystemUserEntity {
 	}
 
 	public void setIsMaster(boolean isMaster) {
+		this.isMaster = isMaster;
+	}
+
+	public List<SystemUnitEntity> getSystemUnit() {
+		return systemUnit;
+	}
+
+	public void setSystemUnit(List<SystemUnitEntity> systemUnit) {
+		this.systemUnit = systemUnit;
+	}
+
+	public void setMaster(boolean isMaster) {
 		this.isMaster = isMaster;
 	}
 

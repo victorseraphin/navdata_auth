@@ -4,6 +4,8 @@ public class SystemRequest {
 	
 	private Integer id;
     private String name;
+	private Integer systemUnitId;
+    private String systemUnitDesc;
 
 	public Integer getId() {
 		return id;
@@ -19,6 +21,25 @@ public class SystemRequest {
 
 	public void setName(String name) {
 		this.name = name;
-	}	
+	}
+
+	public Integer getSystemUnitId() {
+		return systemUnitId;
+	}
+
+	public void setSystemUnitId(Integer systemUnitId) {
+		this.systemUnitId = systemUnitId;
+	}
+
+	public String getSystemUnitDesc() {
+		return systemUnitDesc;
+	}
+
+	public void setSystemUnitDesc(String systemUnitDesc) {
+		this.systemUnitDesc = systemUnitDesc;
+	}
+
+	
+	
     
 }

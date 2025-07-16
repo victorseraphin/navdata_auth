@@ -38,13 +38,21 @@ public class SystemUnitEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
     
-    @ManyToMany
+    @OneToMany
     @JoinTable(
         name = "system_unit_system",
         joinColumns = @JoinColumn(name = "system_unit_id"),
         inverseJoinColumns = @JoinColumn(name = "system_id")
     )
     private List<SystemEntity> systems;
+    
+    @OneToMany
+    @JoinTable(
+        name = "system_unit_system_user",
+        joinColumns = @JoinColumn(name = "system_unit_id"),
+        inverseJoinColumns = @JoinColumn(name = "system_user_id")
+    )
+    private List<SystemUserEntity> systemsUsers;
 
 	public Integer getId() {
 		return id;

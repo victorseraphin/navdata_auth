@@ -89,7 +89,7 @@ public class AuthService {
 		LocalDateTime fim = inicio.plusHours(24);
 
 		TokenEntity tokenEntity = new TokenEntity(accessToken, userEntity.getEmail(), inicio, fim, true,
-				userEntity.getSystemUnit().getId(), userEntity.getId(), system.getId(), system.getName());
+				userEntity.getSystemUnit().get(0).getId(), userEntity.getId(), system.getId(), system.getName());
 		tokenRepository.save(tokenEntity);
 
 		// Cookie com refreshToken
@@ -98,8 +98,10 @@ public class AuthService {
 		cookie.setPath("/");
 		cookie.setMaxAge(7 * 24 * 60 * 60);
 		response.addCookie(cookie);
+		
+		SystemUserResponse userResponse = mapper.toResponse(userEntity);
 
-		return new AuthResponse(accessToken);
+		return new AuthResponse(accessToken, userResponse);
 	}
 
 	public boolean checkPassword(SystemUserEntity user, String rawPassword) {
@@ -120,7 +122,6 @@ public class AuthService {
 			SystemUserEntity entity = new SystemUserEntity();
 			request.setPassword(passwordEncoder.encode(request.getPassword()));
 			request.setActive("Y");
-			mapper.createFromDTO(request, entity);
 
 			// Cria automaticamente o System Auth/Core
 			if (!systemRepository.existsByNameAndDeletedAtIsNull("System Core")) {
@@ -140,9 +141,10 @@ public class AuthService {
 				unit.setLocalizacao("Pirassununga");
 				unit.setSystems(entity.getSystems());
 				systemUnitRepository.save(unit);
-				entity.setSystemUnit(unit);
+				entity.setSystemUnit(Collections.singletonList(unit));
 			}
 			entity.setIsMaster(true);
+			mapper.createFromDTO(request, entity);
 
 			entity = systemUserRepository.save(entity);
 

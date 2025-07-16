@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "system_group")
+@Table(name = "\"system_group\"")
 public class SystemGroupEntity {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)

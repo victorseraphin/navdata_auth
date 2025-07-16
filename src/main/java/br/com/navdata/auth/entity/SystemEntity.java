@@ -16,7 +16,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "system")
+@Table(name = "\"system\"")
 public class SystemEntity {
 
 	@Id

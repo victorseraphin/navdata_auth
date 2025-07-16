@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "system_unit")
+@Table(name = "\"system_unit\"")
 public class SystemUnitEntity {
 
 	@Id

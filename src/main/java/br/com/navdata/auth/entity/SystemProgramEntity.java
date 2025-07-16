@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
-@Table(name = "system_program")
+@Table(name = "\"system_program\"")
 public class SystemProgramEntity {
 
     @Id

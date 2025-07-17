@@ -149,7 +149,7 @@ public class AuthService {
 			request.setActive("Y");
 
 			// Cria automaticamente o System Auth/Core
-			if (!systemRepository.existsByNameAndDeletedAtIsNull("System Core")) {
+			if (!systemRepository.existsByNameAndDeletedAtIsNull("NavSystemCore")) {
 				SystemEntity system = new SystemEntity();
 				system.setName("NavSystemCore");
 				systemRepository.save(system);

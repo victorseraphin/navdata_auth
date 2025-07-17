@@ -10,11 +10,13 @@ import br.com.navdata.auth.entity.SystemEntity;
 
 public interface SystemRepository extends JpaRepository<SystemEntity, Integer> {
 	
-	boolean existsByName(String name);
+	//boolean existsByName(String name);
 	
 	boolean existsByIdAndDeletedAtIsNull(Integer id);
 	
 	boolean existsByNameAndDeletedAtIsNull(String name);
+	
+	boolean existsByNameAndDeletedAtIsNullAndSystemUnit_Id(String name, Integer unitId);
 
 	List<SystemEntity> findAllByDeletedAtIsNull();
 	

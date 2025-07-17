@@ -49,7 +49,7 @@ public class SystemService {
 
     public SystemResponse criar(SystemRequest request, Integer unitId) {
 
-        if (systemRepository.existsByName(request.getName())) {
+        if (systemRepository.existsByNameAndDeletedAtIsNullAndSystemUnit_Id(request.getName(), unitId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sistema já existe");
         }
         if (request.getSystemUnitId() != unitId) {

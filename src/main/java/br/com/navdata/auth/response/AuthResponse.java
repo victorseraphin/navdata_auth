@@ -3,14 +3,14 @@ package br.com.navdata.auth.response;
 public class AuthResponse {
 
 	private String accessToken;
-	private SystemUserResponse systemUser;
+	//private SystemUserResponse systemUser;
 
 	public AuthResponse() {
 	}
 
-	public AuthResponse(String accessToken, SystemUserResponse systemUser) {
+	public AuthResponse(String accessToken/*, SystemUserResponse systemUser*/) {
 		this.accessToken = accessToken;
-		this.systemUser = systemUser;
+		//this.systemUser = systemUser;
 	}
 
 	public String getAccessToken() {
@@ -21,12 +21,12 @@ public class AuthResponse {
 		this.accessToken = accessToken;
 	}
 
-	public SystemUserResponse getSystemUser() {
+	/*public SystemUserResponse getSystemUser() {
 		return systemUser;
 	}
 
 	public void setSystemUser(SystemUserResponse systemUser) {
 		this.systemUser = systemUser;
-	}
+	}*/
 
 }

@@ -8,7 +8,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
+import br.com.navdata.auth.context.TokenContext;
+import br.com.navdata.auth.entity.RefreshTokenEntity;
+import br.com.navdata.auth.entity.TokenEntity;
+import br.com.navdata.auth.repository.RefreshTokenRepository;
 import br.com.navdata.auth.repository.TokenRepository;
 import br.com.navdata.auth.request.LoginRequest;
 import br.com.navdata.auth.request.SystemUserRequest;
@@ -19,7 +24,10 @@ import br.com.navdata.auth.response.TokenValidationResponse;
 import br.com.navdata.auth.service.AuthService;
 import br.com.navdata.auth.service.JwtService;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -27,87 +35,94 @@ import java.util.concurrent.ConcurrentHashMap;
 public class AuthController {
 
 	@Autowired
-    private JwtService jwtService;
-    
+	private JwtService jwtService;
+
 	@Autowired
-    private AuthService authService;
-    
-    @Autowired
-    private TokenRepository tokenRepository;
+	private AuthService authService;
 
-    // Aqui armazenamos refresh tokens em memória (trocar por DB ou Redis na prática)
-    private final Map<String, String> refreshTokens = new ConcurrentHashMap<>();
-    
-    @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request, HttpServletResponse response, @RequestHeader("X-System-Name") String systemName) {
-        AuthResponse result = authService.login(request, response, systemName);
-        return ResponseEntity.ok(result);
-    }//*/    
+	@Autowired
+	private TokenRepository tokenRepository;
 
-    @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) return ResponseEntity.status(401).body("Sem refresh token");
+	@Autowired
+	private RefreshTokenRepository refreshTokenRepository;
 
-        String refreshToken = null;
-        for (Cookie cookie : cookies) {
-            if ("refreshToken".equals(cookie.getName())) {
-                refreshToken = cookie.getValue();
-                break;
-            }
-        }
-        if (refreshToken == null || !refreshTokens.containsKey(refreshToken)) {
-            return ResponseEntity.status(403).body("Refresh token inválido");
-        }
+	// Aqui armazenamos refresh tokens em memória (trocar por DB ou Redis na
+	// prática)
+	private final Map<String, String> refreshTokens = new ConcurrentHashMap<>();
 
-        String username = refreshTokens.get(refreshToken);
-        String newAccessToken = jwtService.generateAccessToken(username);
+	@PostMapping("/login")
+	public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request, HttpServletResponse response, @RequestHeader("X-System-Name") String systemName) {
+		AuthResponse result = authService.login(request, response, systemName);
+		return ResponseEntity.ok(result);
+	}// */
 
-        return ResponseEntity.ok(Map.of("accessToken", newAccessToken));
-    }
+	@PostMapping("/refresh-token")
+	public ResponseEntity<?> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletRequest request, HttpServletResponse response) {
 
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest request, HttpServletResponse response) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("refreshToken".equals(cookie.getName())) {
-                    refreshTokens.remove(cookie.getValue());
-                    cookie.setMaxAge(0);
-                    cookie.setPath("/");
-                    response.addCookie(cookie);
-                }
-            }
-        }
-        return ResponseEntity.ok(Map.of("message", "Logout efetuado"));
-    }
-    
-    @PostMapping("/register")
-    public ResponseEntity<SystemUserResponse> register(@RequestBody SystemUserRequest request) {
-    	SystemUserResponse criado = authService.registrar(request);
-        return ResponseEntity.ok(criado);
-    }//*/
-    
-    @PostMapping("/validate")
-    public ResponseEntity<TokenValidationResponse> validateToken(@RequestBody TokenValidationRequest request, @RequestHeader("X-System-Name") String systemName) {
-        boolean valido = jwtService.isTokenValid(request.getToken(), systemName);
+		if (refreshToken == null) {
+	        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token não fornecido3");
+	    }
+		
+		RefreshTokenEntity refreshEntity = refreshTokenRepository
+	            .findByTokenAndValidTrueAndExpiryDateAfter(refreshToken, Instant.now())
+	            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido ou expirado"));
+	
+		AuthResponse authResponse = authService.refreshAccessToken(refreshToken, refreshEntity.getSystemUnitId());
+		return ResponseEntity.ok(authResponse);		
+	}
 
-        if (valido) {
-            String username = jwtService.extractUsername(request.getToken());
-            return ResponseEntity.ok(new TokenValidationResponse(true, username));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new TokenValidationResponse(false, null));
-        }
-    }
-    
-    @PutMapping("/revoke")
-    public ResponseEntity<Void> revokeToken(@RequestBody TokenValidationRequest request) {
-        tokenRepository.findByTokenAndValidTrue(request.getToken())
-            .ifPresent(token -> {
-                token.setValid(false);
-                tokenRepository.save(token);
-            });
-        return ResponseEntity.noContent().build();
-    }
+	@PostMapping("/logout")
+	public ResponseEntity<Void> logout(HttpServletRequest request) {
+	    String refreshToken = extractRefreshToken(request);
+
+	    authService.logout(refreshToken);
+	    return ResponseEntity.noContent().build();
+	}
+
+	private String extractRefreshToken(HttpServletRequest request) {
+	    if (request.getCookies() != null) {
+	        for (Cookie cookie : request.getCookies()) {
+	            if ("refreshToken".equals(cookie.getName())) {
+	                return cookie.getValue();
+	            }
+	        }
+	    }
+	    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Refresh token não fornecido");
+	}
+
+	@PostMapping("/register")
+	public ResponseEntity<SystemUserResponse> register(@RequestBody SystemUserRequest request) {
+		SystemUserResponse criado = authService.registrar(request);
+		return ResponseEntity.ok(criado);
+	}// */
+
+	@PostMapping("/validate")
+	public ResponseEntity<TokenValidationResponse> validateToken(@RequestBody TokenValidationRequest request,
+			@RequestHeader("X-System-Name") String systemName) {
+		boolean valido = jwtService.isTokenValid(request.getToken(), systemName);
+
+		if (valido) {
+			String username = jwtService.extractUsername(request.getToken());
+			return ResponseEntity.ok(new TokenValidationResponse(true, username));
+		} else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new TokenValidationResponse(false, null));
+		}
+	}
+
+	@PutMapping("/revoke")
+	public ResponseEntity<Void> revokeToken(@RequestBody TokenValidationRequest request) {
+		tokenRepository.findByTokenAndValidTrue(request.getToken()).ifPresent(token -> {
+			token.setValid(false);
+			tokenRepository.save(token);
+		});
+		return ResponseEntity.noContent().build();
+	}
+
+	@GetMapping("/me")
+	public ResponseEntity<?> me(@RequestHeader("Authorization") String authHeader) {
+		String token = authHeader.replace("Bearer ", "").trim();
+		SystemUserResponse user = authService.getAuthenticatedUser(token);
+		return ResponseEntity.ok(user);
+
+	}
 }
-

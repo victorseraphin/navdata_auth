@@ -37,10 +37,14 @@ public class TokenEntity {
 
     @Column(name = "system_name")
     private String systemName;
+    
+    @ManyToOne
+    @JoinColumn(name = "refresh_token_id")
+    private RefreshTokenEntity refreshToken;
 
     public TokenEntity() {}
 
-    public TokenEntity(String token, String email, LocalDateTime inicioVigencia, LocalDateTime fimVigencia, boolean valid, Integer systemUnitId, Integer systemUserId, Integer systemId, String systemName) {
+    public TokenEntity(String token, String email, LocalDateTime inicioVigencia, LocalDateTime fimVigencia, boolean valid, Integer systemUnitId, Integer systemUserId, Integer systemId, String systemName, RefreshTokenEntity refreshToken) {
         this.token = token;
         this.email = email;
         this.inicioVigencia = inicioVigencia;
@@ -50,7 +54,16 @@ public class TokenEntity {
         this.systemUserId = systemUserId;
         this.systemId = systemId;
         this.systemName = systemName;
+        this.refreshToken = refreshToken;
     }
+
+	public RefreshTokenEntity getRefreshToken() {
+		return refreshToken;
+	}
+
+	public void setRefreshToken(RefreshTokenEntity refreshToken) {
+		this.refreshToken = refreshToken;
+	}
 
 	public Long getId() {
 		return id;

@@ -27,9 +27,8 @@ public class SystemProgramEntity {
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt;    
     
-    // Cada programa pertence a um sistema
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "system_id")
     private SystemEntity system;

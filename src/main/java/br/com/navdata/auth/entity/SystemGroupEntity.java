@@ -30,6 +30,10 @@ public class SystemGroupEntity {
     
     @ManyToMany(mappedBy = "systemGroups")
     private Set<SystemProgramEntity> systemPrograms = new HashSet<>();
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "system_unit_id")
+    private SystemUnitEntity systemUnit;
 
 	public Integer getId() {
 		return id;
@@ -85,6 +89,14 @@ public class SystemGroupEntity {
 
 	public void setSystemPrograms(Set<SystemProgramEntity> systemPrograms) {
 		this.systemPrograms = systemPrograms;
+	}
+
+	public SystemUnitEntity getSystemUnit() {
+		return systemUnit;
+	}
+
+	public void setSystemUnit(SystemUnitEntity systemUnit) {
+		this.systemUnit = systemUnit;
 	}
     
     

@@ -38,8 +38,7 @@ public class SystemProgramService {
 	@Autowired
 	private SystemProgramMapper mapper;
 	
-	public List<SystemProgramResponse> listarTodos(Integer unitId) {
-		
+	public List<SystemProgramResponse> listarTodos(Integer unitId) {		
         return systemProgramRepository.findAllBySystemUnit_IdAndDeletedAtIsNull(unitId)
                 .stream()
                 .map(mapper::toResponse)
@@ -58,7 +57,7 @@ public class SystemProgramService {
         if (systemProgramRepository.existsByNameAndDeletedAtIsNullAndSystemUnit_Id(request.getName(), unitId)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sistema já existe");
         }
-        if (request.getSystemUnit().getId() != unitId) {
+        if (request.getSystemUnitId() != unitId) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Problema de validade de Empresa. Consulte o Administrador do Sistema!");
         }
         
@@ -67,13 +66,13 @@ public class SystemProgramService {
         SystemProgramEntity entity = new SystemProgramEntity();      
         entity.setSystem(system);
         
-        /*Optional<SystemUnitEntity> optionalUnit = systemUnitRepository.findByIdAndDeletedAtIsNull(unitId);
+        Optional<SystemUnitEntity> optionalUnit = systemUnitRepository.findByIdAndDeletedAtIsNull(unitId);
               
         if (optionalUnit.isPresent()) {
-        	entity.setSystemUnit(optionalUnit);
+        	entity.setSystemUnit(optionalUnit.get());
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "SystemUnitEntity não encontrada com id: " + request.getSystemUnit().getId());
-        }*/
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "SystemUnitEntity não encontrada com id: " + request.getSystemUnitId());
+        }
         mapper.createFromDTO(request, entity);
 
         return mapper.toResponse(systemProgramRepository.save(entity));
@@ -82,7 +81,7 @@ public class SystemProgramService {
     public SystemProgramResponse atualizar(Integer id, SystemProgramRequest request, Integer unitId) {
         return systemProgramRepository.findByIdAndDeletedAtIsNullAndSystemUnit_Id(id, unitId).map(entity -> { 
 
-            if (request.getSystemUnit().getId() != unitId) {
+            if (request.getSystemUnitId() != unitId) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Problema de validade de Empresa. Consulte o Administrador do Sistema!");
             }
             

@@ -144,17 +144,9 @@ public class AuthService {
 				throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário já existe");
 			}
 
-			SystemUserEntity entity = new SystemUserEntity();
+			SystemUserEntity systemUserEntity = new SystemUserEntity();
 			request.setPassword(passwordEncoder.encode(request.getPassword()));
 			request.setActive("Y");
-
-			// Cria automaticamente o System Auth/Core
-			if (!systemRepository.existsByNameAndDeletedAtIsNull("NavSystemCore")) {
-				SystemEntity system = new SystemEntity();
-				system.setName("NavSystemCore");
-				systemRepository.save(system);
-				entity.setSystems(Collections.singletonList(system));
-			}
 
 			// Cria automaticamente o System Auth/Core
 			if (!systemUnitRepository.existsByDocumento("0000000000")) {
@@ -164,16 +156,26 @@ public class AuthService {
 				unit.setInscricao("0000000000");
 				unit.setMatricula("0000000000");
 				unit.setLocalizacao("Pirassununga");
-				unit.setSystems(entity.getSystems());
+				//unit.setSystems(entity.getSystems());
 				systemUnitRepository.save(unit);
-				entity.setSystemUnit(Collections.singletonList(unit));
+				systemUserEntity.setSystemUnit(Collections.singletonList(unit));
 			}
-			entity.setIsMaster(true);
-			mapper.createFromDTO(request, entity);
 
-			entity = systemUserRepository.save(entity);
+			// Cria automaticamente o System Auth/Core
+			if (!systemRepository.existsByNameAndDeletedAtIsNull("NavSystemCore")) {
+				SystemEntity system = new SystemEntity();
+				system.setName("NavSystemCore");
+				system.setSystemUnit(systemUserEntity.getSystemUnit().get(0));
+				systemRepository.save(system);
+				systemUserEntity.setSystems(Collections.singletonList(system));
+			}
+			
+			systemUserEntity.setIsMaster(true);
+			mapper.createFromDTO(request, systemUserEntity);
 
-			return mapper.toResponse(entity);
+			systemUserEntity = systemUserRepository.save(systemUserEntity);
+
+			return mapper.toResponse(systemUserEntity);
 		} else {
 			throw new ResponseStatusException(HttpStatus.NOT_FOUND,
 					"Apenas o usuário master pode acessar esta funcionalidade.");

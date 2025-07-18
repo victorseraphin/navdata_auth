@@ -60,6 +60,7 @@ public class AuthController {
 	public ResponseEntity<?> refreshToken(@CookieValue(value = "refreshToken", required = false) String refreshToken, HttpServletRequest request, HttpServletResponse response) {
 
 		if (refreshToken == null) {
+	        clearRefreshTokenCookie(response); // limpa o cookie
 	        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Token não fornecido");
 	    }
 		
@@ -69,6 +70,16 @@ public class AuthController {
 	
 		AuthResponse authResponse = authService.refreshAccessToken(refreshToken, refreshEntity.getSystemUnitId());
 		return ResponseEntity.ok(authResponse);		
+	}
+	
+	private void clearRefreshTokenCookie(HttpServletResponse response) {	    
+		// Cookie com refreshToken
+		Cookie cookie = new Cookie("refreshToken", null);
+		cookie.setHttpOnly(true);
+		cookie.setPath("/");
+		cookie.setMaxAge(0);
+		cookie.setSecure(false); // só coloque true se estiver usando HTTPS
+		response.addCookie(cookie);	
 	}
 
 	@PostMapping("/logout")

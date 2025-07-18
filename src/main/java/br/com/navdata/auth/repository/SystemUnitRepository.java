@@ -16,6 +16,5 @@ public interface SystemUnitRepository extends JpaRepository<SystemUnitEntity, In
 	
 	Optional<SystemUnitEntity> findByIdAndDeletedAtIsNull(Integer id);
 	
-	
 
 }

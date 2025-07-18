@@ -1,11 +1,12 @@
 package br.com.navdata.auth.response;
 
+import java.util.List;
+
 public class SystemResponse {
 
 	private Integer id;
 	private String name;
-	private Integer systemUnitId;
-	private String systemUnitDesc;
+	List<Long> systemProgramId;
 
 	public Integer getId() {
 		return id;
@@ -23,20 +24,16 @@ public class SystemResponse {
 		this.name = name;
 	}
 
-	public Integer getSystemUnitId() {
-		return systemUnitId;
+	public List<Long> getSystemProgramId() {
+		return systemProgramId;
 	}
 
-	public void setSystemUnitId(Integer systemUnitId) {
-		this.systemUnitId = systemUnitId;
+	public void setSystemProgramId(List<Long> systemProgramId) {
+		this.systemProgramId = systemProgramId;
 	}
 
-	public String getSystemUnitDesc() {
-		return systemUnitDesc;
-	}
+	
 
-	public void setSystemUnitDesc(String systemUnitDesc) {
-		this.systemUnitDesc = systemUnitDesc;
-	}
+	
 
 }

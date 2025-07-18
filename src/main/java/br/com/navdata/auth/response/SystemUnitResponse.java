@@ -1,5 +1,7 @@
 package br.com.navdata.auth.response;
 
+import java.util.List;
+
 public class SystemUnitResponse {
 	
 	private Integer id;
@@ -8,6 +10,7 @@ public class SystemUnitResponse {
     private String matricula;
     private String localizacao;
     private String inscricao;
+	private List<SystemResponse> systems;
 
 	public Integer getId() {
 		return id;
@@ -56,5 +59,14 @@ public class SystemUnitResponse {
 	public void setInscricao(String inscricao) {
 		this.inscricao = inscricao;
 	}
+
+	public List<SystemResponse> getSystems() {
+		return systems;
+	}
+
+	public void setSystems(List<SystemResponse> systems) {
+		this.systems = systems;
+	}
+	
     
 }

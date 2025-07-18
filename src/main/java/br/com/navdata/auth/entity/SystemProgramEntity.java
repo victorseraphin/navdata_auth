@@ -2,7 +2,9 @@ package br.com.navdata.auth.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "\"system_program\"")
@@ -27,17 +29,22 @@ public class SystemProgramEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
     
-    @ManyToOne
+    // Cada programa pertence a um sistema
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "system_id")
-    private SystemEntity systems;
-
+    private SystemEntity system;
+    
     @ManyToMany
     @JoinTable(
-        name = "system_group_system_program",
-        joinColumns = @JoinColumn(name = "system_group_id"),
-        inverseJoinColumns = @JoinColumn(name = "system_program_id")
+        name = "system_program_system_group",
+        joinColumns = @JoinColumn(name = "system_program_id"),
+        inverseJoinColumns = @JoinColumn(name = "system_group_id")
     )
-    private List<SystemProgramEntity> programs;
+    private Set<SystemGroupEntity> systemGroups = new HashSet<>();
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "system_unit_id")
+    private SystemUnitEntity systemUnit;
 
 	public Long getId() {
 		return id;
@@ -95,20 +102,31 @@ public class SystemProgramEntity {
 		this.updatedAt = updatedAt;
 	}
 
-	public SystemEntity getSystems() {
-		return systems;
+	public SystemEntity getSystem() {
+		return system;
 	}
 
-	public void setSystems(SystemEntity systems) {
-		this.systems = systems;
+	public void setSystem(SystemEntity system) {
+		this.system = system;
 	}
 
-	public List<SystemProgramEntity> getPrograms() {
-		return programs;
+	public Set<SystemGroupEntity> getSystemGroups() {
+		return systemGroups;
 	}
 
-	public void setPrograms(List<SystemProgramEntity> programs) {
-		this.programs = programs;
+	public void setSystemGroups(Set<SystemGroupEntity> systemGroups) {
+		this.systemGroups = systemGroups;
 	}
+
+	public SystemUnitEntity getSystemUnit() {
+		return systemUnit;
+	}
+
+	public void setSystemUnit(SystemUnitEntity systemUnit) {
+		this.systemUnit = systemUnit;
+	}
+
+
+
     
 }

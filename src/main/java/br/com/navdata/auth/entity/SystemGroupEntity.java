@@ -3,7 +3,9 @@ package br.com.navdata.auth.entity;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "\"system_group\"")
@@ -22,11 +24,12 @@ public class SystemGroupEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    @ManyToMany
-    @JoinTable(name = "system_group_system_program",
-        joinColumns = @JoinColumn(name = "system_group_id"),
-        inverseJoinColumns = @JoinColumn(name = "system_program_id"))
-    private List<SystemProgramEntity> programs;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "system_id")
+    private SystemEntity system;
+    
+    @ManyToMany(mappedBy = "systemGroups")
+    private Set<SystemProgramEntity> systemPrograms = new HashSet<>();
 
 	public Integer getId() {
 		return id;
@@ -42,14 +45,6 @@ public class SystemGroupEntity {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public List<SystemProgramEntity> getPrograms() {
-		return programs;
-	}
-
-	public void setPrograms(List<SystemProgramEntity> programs) {
-		this.programs = programs;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -76,5 +71,22 @@ public class SystemGroupEntity {
 		this.deletedAt = deletedAt;
 	}
 
+	public SystemEntity getSystem() {
+		return system;
+	}
+
+	public void setSystem(SystemEntity system) {
+		this.system = system;
+	}
+
+	public Set<SystemProgramEntity> getSystemPrograms() {
+		return systemPrograms;
+	}
+
+	public void setSystemPrograms(Set<SystemProgramEntity> systemPrograms) {
+		this.systemPrograms = systemPrograms;
+	}
+    
+    
     
 }

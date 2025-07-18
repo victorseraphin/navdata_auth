@@ -3,8 +3,12 @@ package br.com.navdata.auth.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,10 +38,19 @@ public class SystemEntity {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
-	@ManyToMany
-	@JoinTable(name = "system_unit_system", // nome da tabela de associação
-			joinColumns = @JoinColumn(name = "system_id"), inverseJoinColumns = @JoinColumn(name = "system_unit_id"))
-	private List<SystemUnitEntity> systemUnit;
+	// Cada sistema pertence a uma unidade (muitos sistemas pra 1 unidade)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "system_unit_id")
+    @JsonBackReference
+    private SystemUnitEntity systemUnit;
+	
+    // Um sistema tem vários programas
+    @OneToMany(mappedBy = "system", fetch = FetchType.LAZY)
+    private List<SystemProgramEntity> programs;
+    
+    // Um sistema tem vários grupos
+    @OneToMany(mappedBy = "system", fetch = FetchType.LAZY)
+    private List<SystemGroupEntity> groups;
 
 	public Integer getId() {
 		return id;
@@ -79,12 +92,33 @@ public class SystemEntity {
 		this.deletedAt = deletedAt;
 	}
 
-	public List<SystemUnitEntity> getSystemUnit() {
+	public SystemUnitEntity getSystemUnit() {
 		return systemUnit;
 	}
 
-	public void setSystemUnit(List<SystemUnitEntity> systemUnit) {
+	public void setSystemUnit(SystemUnitEntity systemUnit) {
 		this.systemUnit = systemUnit;
 	}
+
+	public List<SystemProgramEntity> getPrograms() {
+		return programs;
+	}
+
+	public void setPrograms(List<SystemProgramEntity> programs) {
+		this.programs = programs;
+	}
+
+	public List<SystemGroupEntity> getGroups() {
+		return groups;
+	}
+
+	public void setGroups(List<SystemGroupEntity> groups) {
+		this.groups = groups;
+	}
+
+
+
+
+	
 
 }

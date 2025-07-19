@@ -123,7 +123,7 @@ public class SystemGroupService {
             group.getSystemUnit().getId(), group.getSystem().getId()
         );
 
-        Set<Long> permittedIds = group.getSystemPrograms().stream()
+        Set<Integer> permittedIds = group.getSystemPrograms().stream()
                 .map(SystemProgramEntity::getId)
                 .collect(Collectors.toSet());
 
@@ -151,6 +151,13 @@ public class SystemGroupService {
         System.out.println("programIds:"+programIds);
 
         List<SystemProgramEntity> permittedPrograms = systemProgramRepository.findAllById(programIds);
+        
+        if (permittedPrograms.isEmpty()) {
+            System.out.println("Nenhum programa encontrado com os IDs: " + programIds);
+            throw new RuntimeException("Programas não encontrados.");
+        }
+        
+        System.out.println("permittedPrograms:"+permittedPrograms.get(0));
 
         group.setSystemPrograms(new HashSet<>(permittedPrograms));
         systemGroupRepository.save(group);

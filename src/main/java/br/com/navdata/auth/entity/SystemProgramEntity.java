@@ -12,7 +12,7 @@ public class SystemProgramEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private String name;
 
@@ -48,11 +48,11 @@ public class SystemProgramEntity {
     @JoinColumn(name = "system_unit_id")
     private SystemUnitEntity systemUnit;
 
-	public Long getId() {
+	public Integer getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(Integer id) {
 		this.id = id;
 	}
 

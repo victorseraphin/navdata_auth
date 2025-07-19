@@ -17,7 +17,7 @@ import br.com.navdata.auth.response.SystemResponse;
 @Mapper(componentModel = "spring")
 public interface SystemMapper {   
 
-    @Mapping(target = "systemProgramId", source = "programs", qualifiedByName = "mapProgramsToIds")
+    //@Mapping(target = "systemProgramId", source = "programs", qualifiedByName = "mapProgramsToIds")
     SystemResponse toResponse(SystemEntity entity);    
     
     
@@ -41,7 +41,7 @@ public interface SystemMapper {
     }*/
     
     @Named("mapProgramsToIds")
-    default List<Long> mapProgramsToIds(List<SystemProgramEntity> programs) {
+    default List<Integer> mapProgramsToIds(List<SystemProgramEntity> programs) {
         if (programs == null) return Collections.emptyList();
         return programs.stream().map(SystemProgramEntity::getId).collect(Collectors.toList());
     }

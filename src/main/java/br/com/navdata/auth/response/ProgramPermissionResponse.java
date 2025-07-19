@@ -1,18 +1,18 @@
 package br.com.navdata.auth.response;
 
 public class ProgramPermissionResponse {
-	private Long programId;
+	private Integer programId;
 	private String name;
 	private String path;
 	private String method;
 	private boolean permitted;
 
-	public Long getProgramId() {
+	public Integer getProgramId() {
 		return programId;
 	}
 
-	public void setProgramId(Long programId) {
-		this.programId = programId;
+	public void setProgramId(Integer integer) {
+		this.programId = integer;
 	}
 
 	public String getName() {

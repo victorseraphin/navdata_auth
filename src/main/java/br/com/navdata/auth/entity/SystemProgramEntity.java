@@ -33,12 +33,15 @@ public class SystemProgramEntity {
     @JoinColumn(name = "system_id")
     private SystemEntity system;
     
-    @ManyToMany
+    /*@ManyToMany
     @JoinTable(
         name = "system_program_system_group",
         joinColumns = @JoinColumn(name = "system_program_id"),
         inverseJoinColumns = @JoinColumn(name = "system_group_id")
     )
+    private Set<SystemGroupEntity> systemGroups = new HashSet<>();*/
+    
+    @ManyToMany(mappedBy = "systemPrograms")
     private Set<SystemGroupEntity> systemGroups = new HashSet<>();
     
     @ManyToOne(fetch = FetchType.LAZY)

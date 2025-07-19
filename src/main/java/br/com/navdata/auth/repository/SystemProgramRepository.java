@@ -18,5 +18,8 @@ public interface SystemProgramRepository extends JpaRepository<SystemProgramEnti
 	List<SystemProgramEntity> findAllBySystemUnit_IdAndDeletedAtIsNull(Integer unitId);
 	
 	Optional<SystemProgramEntity> findByIdAndDeletedAtIsNullAndSystemUnit_Id(Integer id, Integer unitId);	
+	
+	List<SystemProgramEntity> findBySystemUnit_IdAndDeletedAtIsNullAndSystem_Id(Integer unitId, Integer systemId);
+
 
 }

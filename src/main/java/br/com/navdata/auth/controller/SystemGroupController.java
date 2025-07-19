@@ -68,6 +68,6 @@ public class SystemGroupController {
     
     @PutMapping("/{groupId}/permissions")
     public void updatePermissions(@PathVariable Integer groupId, @RequestBody List<ProgramPermissionRequest> permissions) {
-        systemGroupService.updatePermissions(groupId, permissions);
+        systemGroupService.updatePermissions(groupId, permissions);//
     }
 }

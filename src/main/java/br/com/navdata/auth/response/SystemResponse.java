@@ -6,7 +6,7 @@ public class SystemResponse {
 
 	private Integer id;
 	private String name;
-	List<Long> systemProgramId;
+	List<Integer> systemProgramId;
 
 	public Integer getId() {
 		return id;
@@ -24,11 +24,11 @@ public class SystemResponse {
 		this.name = name;
 	}
 
-	public List<Long> getSystemProgramId() {
+	public List<Integer> getSystemProgramId() {
 		return systemProgramId;
 	}
 
-	public void setSystemProgramId(List<Long> systemProgramId) {
+	public void setSystemProgramId(List<Integer> systemProgramId) {
 		this.systemProgramId = systemProgramId;
 	}
 

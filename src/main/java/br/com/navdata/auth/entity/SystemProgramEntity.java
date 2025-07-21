@@ -128,7 +128,6 @@ public class SystemProgramEntity {
 		this.systemUnit = systemUnit;
 	}
 
-
-
+	
     
 }

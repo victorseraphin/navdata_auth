@@ -88,13 +88,13 @@ public class SystemUserEntity {
     @JoinTable(name = "system_user_system_group",
         joinColumns = @JoinColumn(name = "system_user_id"),
         inverseJoinColumns = @JoinColumn(name = "system_group_id"))
-    private List<SystemGroupEntity> groups;
+    private List<SystemGroupEntity> systemGroups;
 
     @ManyToMany
     @JoinTable(name = "system_user_system_program",
         joinColumns = @JoinColumn(name = "system_user_id"),
         inverseJoinColumns = @JoinColumn(name = "system_program_id"))
-    private List<SystemProgramEntity> programs;
+    private List<SystemProgramEntity> systemPrograms;
 
 	public Integer getId() {
 		return id;
@@ -200,6 +200,14 @@ public class SystemUserEntity {
 		this.rememberToken = rememberToken;
 	}
 
+	public boolean isMaster() {
+		return isMaster;
+	}
+
+	public void setMaster(boolean isMaster) {
+		this.isMaster = isMaster;
+	}
+
 	public LocalDateTime getCreatedAt() {
 		return createdAt;
 	}
@@ -224,38 +232,6 @@ public class SystemUserEntity {
 		this.deletedAt = deletedAt;
 	}
 
-	public List<SystemEntity> getSystems() {
-		return systems;
-	}
-
-	public void setSystems(List<SystemEntity> systems) {
-		this.systems = systems;
-	}
-
-	public List<SystemGroupEntity> getGroups() {
-		return groups;
-	}
-
-	public void setGroups(List<SystemGroupEntity> groups) {
-		this.groups = groups;
-	}
-
-	public List<SystemProgramEntity> getPrograms() {
-		return programs;
-	}
-
-	public void setPrograms(List<SystemProgramEntity> programs) {
-		this.programs = programs;
-	}
-
-	public boolean getIsMaster() {
-		return isMaster;
-	}
-
-	public void setIsMaster(boolean isMaster) {
-		this.isMaster = isMaster;
-	}
-
 	public List<SystemUnitEntity> getSystemUnit() {
 		return systemUnit;
 	}
@@ -264,9 +240,30 @@ public class SystemUserEntity {
 		this.systemUnit = systemUnit;
 	}
 
-	public void setMaster(boolean isMaster) {
-		this.isMaster = isMaster;
+	public List<SystemEntity> getSystems() {
+		return systems;
 	}
 
-	
+	public void setSystems(List<SystemEntity> systems) {
+		this.systems = systems;
+	}
+
+	public List<SystemGroupEntity> getSystemGroups() {
+		return systemGroups;
+	}
+
+	public void setSystemGroups(List<SystemGroupEntity> systemGroups) {
+		this.systemGroups = systemGroups;
+	}
+
+	public List<SystemProgramEntity> getSystemPrograms() {
+		return systemPrograms;
+	}
+
+	public void setSystemPrograms(List<SystemProgramEntity> systemPrograms) {
+		this.systemPrograms = systemPrograms;
+	}
+
+    
+
 }

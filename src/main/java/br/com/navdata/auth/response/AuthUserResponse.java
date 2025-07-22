@@ -5,14 +5,11 @@ import java.util.List;
 import br.com.navdata.auth.entity.SystemEntity;
 import br.com.navdata.auth.entity.SystemUnitEntity;
 
-public class SystemUserResponse {
+public class AuthUserResponse {
 
 	private Integer id;
 	private String name;
 	private String email;
-	private String doc;
-	private String fone;
-	private String razao;
 	private Integer systemUnitId;
 
 	public Integer getId() {
@@ -29,7 +26,7 @@ public class SystemUserResponse {
 
 	public void setName(String name) {
 		this.name = name;
-	}
+	}	
 
 	public String getEmail() {
 		return email;
@@ -39,30 +36,6 @@ public class SystemUserResponse {
 		this.email = email;
 	}
 
-	public String getDoc() {
-		return doc;
-	}
-
-	public void setDoc(String doc) {
-		this.doc = doc;
-	}
-
-	public String getFone() {
-		return fone;
-	}
-
-	public void setFone(String fone) {
-		this.fone = fone;
-	}
-
-	public String getRazao() {
-		return razao;
-	}
-
-	public void setRazao(String razao) {
-		this.razao = razao;
-	}
-
 	public Integer getSystemUnitId() {
 		return systemUnitId;
 	}
@@ -70,5 +43,6 @@ public class SystemUserResponse {
 	public void setSystemUnitId(Integer systemUnitId) {
 		this.systemUnitId = systemUnitId;
 	}
-
+	
+	
 }

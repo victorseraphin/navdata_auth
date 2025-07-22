@@ -38,17 +38,14 @@ public class SystemEntity {
 	@Column(name = "deleted_at")
 	private LocalDateTime deletedAt;
 
-	// Cada sistema pertence a uma unidade (muitos sistemas pra 1 unidade)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "system_unit_id")
     @JsonBackReference
     private SystemUnitEntity systemUnit;
 	
-    // Um sistema tem vários programas
     @OneToMany(mappedBy = "system", fetch = FetchType.LAZY)
     private List<SystemProgramEntity> programs;
     
-    // Um sistema tem vários grupos
     @OneToMany(mappedBy = "system", fetch = FetchType.LAZY)
     private List<SystemGroupEntity> groups;
 

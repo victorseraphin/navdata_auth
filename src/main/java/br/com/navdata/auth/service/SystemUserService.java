@@ -75,7 +75,7 @@ public class SystemUserService {
     public SystemUserResponse atualizar(Integer id, SystemUserRequest request, Integer unitId) {
         return systemUserRepository.findByIdAndDeletedAtIsNullAndSystemUnit_Id(id, unitId).map(entity -> {   
         	
-        	if (request.getSystemUnitId() != unitId || entity.getSystemUnit().get(0).getId() != unitId) {
+        	if (request.getSystemUnitId() != unitId || entity.getSystemUnit().getId() != unitId) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Problema de validade de Empresa. Consulte o Administrador do Sistema!");
             }
         	
@@ -90,12 +90,12 @@ public class SystemUserService {
         SystemUserEntity userEntity = systemUserRepository.findByIdAndDeletedAtIsNullAndSystemUnit_Id(id, unitId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
         
-        if (userEntity.getSystemUnit().get(0).getId() != unitId) {
+        if (userEntity.getSystemUnit().getId() != unitId) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Problema de validade de Empresa. Consulte o Administrador do Sistema!");
         }
         
         userEntity.setDeletedAt(LocalDateTime.now());
-        userEntity.setActive("N");
+        userEntity.setActive(false);
         systemUserRepository.save(userEntity); 
 
         

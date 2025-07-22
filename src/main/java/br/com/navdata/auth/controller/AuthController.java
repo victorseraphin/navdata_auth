@@ -16,10 +16,10 @@ import br.com.navdata.auth.entity.TokenEntity;
 import br.com.navdata.auth.repository.RefreshTokenRepository;
 import br.com.navdata.auth.repository.TokenRepository;
 import br.com.navdata.auth.request.LoginRequest;
-import br.com.navdata.auth.request.SystemUserRequest;
+import br.com.navdata.auth.request.AuthUserRequest;
 import br.com.navdata.auth.request.TokenValidationRequest;
 import br.com.navdata.auth.response.AuthResponse;
-import br.com.navdata.auth.response.SystemUserResponse;
+import br.com.navdata.auth.response.AuthUserResponse;
 import br.com.navdata.auth.response.TokenValidationResponse;
 import br.com.navdata.auth.service.AuthService;
 import br.com.navdata.auth.service.JwtService;
@@ -113,8 +113,8 @@ public class AuthController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<SystemUserResponse> register(@RequestBody SystemUserRequest request) {
-		SystemUserResponse criado = authService.registrar(request);
+	public ResponseEntity<AuthUserResponse> register(@RequestBody AuthUserRequest request) {
+		AuthUserResponse criado = authService.registrar(request);
 		return ResponseEntity.ok(criado);
 	}// */
 
@@ -143,7 +143,7 @@ public class AuthController {
 	@GetMapping("/me")
 	public ResponseEntity<?> me(@RequestHeader("Authorization") String authHeader) {
 		String token = authHeader.replace("Bearer ", "").trim();
-		SystemUserResponse user = authService.getAuthenticatedUser(token);
+		AuthUserResponse user = authService.getAuthenticatedUser(token);
 		return ResponseEntity.ok(user);
 
 	}

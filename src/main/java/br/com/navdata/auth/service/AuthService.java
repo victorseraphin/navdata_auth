@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import br.com.navdata.auth.entity.TokenEntity;
 import br.com.navdata.auth.exception.InvalidCredentialsException;
+import br.com.navdata.auth.mapper.AuthUserMapper;
 import br.com.navdata.auth.mapper.SystemUserMapper;
 import br.com.navdata.auth.entity.RefreshTokenEntity;
 import br.com.navdata.auth.entity.SystemEntity;
@@ -26,9 +27,9 @@ import br.com.navdata.auth.repository.SystemUnitRepository;
 import br.com.navdata.auth.repository.SystemUserRepository;
 import br.com.navdata.auth.repository.TokenRepository;
 import br.com.navdata.auth.request.LoginRequest;
-import br.com.navdata.auth.request.SystemUserRequest;
+import br.com.navdata.auth.request.AuthUserRequest;
 import br.com.navdata.auth.response.AuthResponse;
-import br.com.navdata.auth.response.SystemUserResponse;
+import br.com.navdata.auth.response.AuthUserResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -56,7 +57,7 @@ public class AuthService {
 	private RefreshTokenRepository refreshTokenRepository;
 
 	@Autowired
-	private SystemUserMapper mapper;
+	private AuthUserMapper mapper;
 
 	private final BCryptPasswordEncoder passwordEncoder;
 
@@ -70,8 +71,10 @@ public class AuthService {
 		if (userEntity == null || !checkPassword(userEntity, loginDTO.getPassword())) {
 			throw new InvalidCredentialsException("Usuário ou senha inválidos");
 		}
+		
+		System.out.println(userEntity);
 
-		if (!"Y".equals(userEntity.getActive())) {
+		if (!userEntity.isActive() ){
 			throw new InvalidCredentialsException("Usuário está inativo");
 		}
 
@@ -104,7 +107,7 @@ public class AuthService {
 		refreshTokenEntity.setUserEmail(userEntity.getEmail());
 		refreshTokenEntity.setExpiryDate(expiryDate);
 
-		refreshTokenEntity.setSystemUnitId(userEntity.getSystemUnit().get(0).getId());
+		refreshTokenEntity.setSystemUnitId(userEntity.getSystemUnit().getId());
 		refreshTokenEntity.setSystemUserId(userEntity.getId());
 		refreshTokenEntity.setSystemId(system.getId());
 		refreshTokenEntity.setSystemName(system.getName());
@@ -113,7 +116,7 @@ public class AuthService {
 		refreshTokenEntity = refreshTokenRepository.save(refreshTokenEntity);
 
 		TokenEntity tokenEntity = new TokenEntity(accessToken, userEntity.getEmail(), inicio, fim, true,
-				userEntity.getSystemUnit().get(0).getId(), userEntity.getId(), system.getId(), system.getName(), refreshTokenEntity);
+				userEntity.getSystemUnit().getId(), userEntity.getId(), system.getId(), system.getName(), refreshTokenEntity);
 		tokenRepository.save(tokenEntity);
 
 		// Cookie com refreshToken
@@ -137,7 +140,7 @@ public class AuthService {
 		return systemUserRepository.findByEmail(email);
 	}
 
-	public SystemUserResponse registrar(SystemUserRequest request) {
+	public AuthUserResponse registrar(AuthUserRequest request) {
 		boolean isFirstUser = systemUserRepository.count() == 0;
 		if (isFirstUser) {
 			if (systemUserRepository.existsByEmailAndDeletedAtIsNull(request.getEmail())) {
@@ -146,7 +149,7 @@ public class AuthService {
 
 			SystemUserEntity systemUserEntity = new SystemUserEntity();
 			request.setPassword(passwordEncoder.encode(request.getPassword()));
-			request.setActive("Y");
+			request.setActive(true);
 
 			// Cria automaticamente o System Auth/Core
 			if (!systemUnitRepository.existsByDocumento("0000000000")) {
@@ -158,19 +161,19 @@ public class AuthService {
 				unit.setLocalizacao("Pirassununga");
 				//unit.setSystems(entity.getSystems());
 				systemUnitRepository.save(unit);
-				systemUserEntity.setSystemUnit(Collections.singletonList(unit));
+				systemUserEntity.setSystemUnit(unit);
 			}
 
 			// Cria automaticamente o System Auth/Core
 			if (!systemRepository.existsByNameAndDeletedAtIsNull("NavSystemCore")) {
 				SystemEntity system = new SystemEntity();
 				system.setName("NavSystemCore");
-				system.setSystemUnit(systemUserEntity.getSystemUnit().get(0));
+				system.setSystemUnit(systemUserEntity.getSystemUnit());
 				systemRepository.save(system);
 				systemUserEntity.setSystems(Collections.singletonList(system));
 			}
 			
-			systemUserEntity.setIsMaster(true);
+			systemUserEntity.setMaster(true);
 			mapper.createFromDTO(request, systemUserEntity);
 
 			systemUserEntity = systemUserRepository.save(systemUserEntity);
@@ -182,7 +185,7 @@ public class AuthService {
 		}
 	}
 	
-	public SystemUserResponse getAuthenticatedUser(String token) {
+	public AuthUserResponse getAuthenticatedUser(String token) {
         TokenEntity tokenEntity = tokenRepository.findByTokenAndValidTrue(token)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token inválido ou expirado"));
 

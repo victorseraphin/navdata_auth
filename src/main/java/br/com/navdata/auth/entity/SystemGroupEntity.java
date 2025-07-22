@@ -28,9 +28,6 @@ public class SystemGroupEntity {
     @JoinColumn(name = "system_id")
     private SystemEntity system;
     
-    /*@ManyToMany(mappedBy = "systemGroups")
-    private Set<SystemProgramEntity> systemPrograms = new HashSet<>();*/
-    
     @ManyToMany
     @JoinTable(
         name = "system_program_system_group",

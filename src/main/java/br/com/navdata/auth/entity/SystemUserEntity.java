@@ -3,6 +3,8 @@ package br.com.navdata.auth.entity;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -54,14 +56,14 @@ public class SystemUserEntity {
     @Column(name = "google_id", length = 255)
     private String googleId;
 
-    @Column(name = "active", nullable = false, length = 1)
-    private String active = "Y";
-
     @Column(name = "remember_token", length = 100)
     private String rememberToken;
     
     @Column(name = "is_master", nullable = false)
     private boolean isMaster = false;
+
+    @Column(name = "active", nullable = false, length = 1)
+    private boolean active = true;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -72,11 +74,16 @@ public class SystemUserEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-	@ManyToMany
-	@JoinTable(name = "system_unit_system_user", // nome da tabela de associação
+	/*@ManyToMany
+	@JoinTable(name = "system_unit_system_user",
 			joinColumns = @JoinColumn(name = "system_user_id"), 
 			inverseJoinColumns = @JoinColumn(name = "system_unit_id"))
-	private List<SystemUnitEntity> systemUnit;
+	private List<SystemUnitEntity> systemUnit;*/
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "system_unit_id")
+    @JsonBackReference
+    private SystemUnitEntity systemUnit;
     
     @ManyToMany
     @JoinTable(name = "system_user_system",
@@ -182,13 +189,13 @@ public class SystemUserEntity {
 
 	public void setGoogleId(String googleId) {
 		this.googleId = googleId;
-	}
+	}	
 
-	public String getActive() {
+	public boolean isActive() {
 		return active;
 	}
 
-	public void setActive(String active) {
+	public void setActive(boolean active) {
 		this.active = active;
 	}
 
@@ -232,11 +239,11 @@ public class SystemUserEntity {
 		this.deletedAt = deletedAt;
 	}
 
-	public List<SystemUnitEntity> getSystemUnit() {
+	public SystemUnitEntity getSystemUnit() {
 		return systemUnit;
 	}
 
-	public void setSystemUnit(List<SystemUnitEntity> systemUnit) {
+	public void setSystemUnit(SystemUnitEntity systemUnit) {
 		this.systemUnit = systemUnit;
 	}
 
@@ -264,6 +271,5 @@ public class SystemUserEntity {
 		this.systemPrograms = systemPrograms;
 	}
 
-    
-
+	
 }

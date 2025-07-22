@@ -46,13 +46,17 @@ public class SystemUnitEntity {
     @JsonManagedReference
     private List<SystemEntity> systems;
     
-    @OneToMany
+    @OneToMany(mappedBy = "systemUnit", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<SystemUserEntity> systemsUsers;
+    
+    /*@OneToMany
     @JoinTable(
         name = "system_unit_system_user",
         joinColumns = @JoinColumn(name = "system_unit_id"),
         inverseJoinColumns = @JoinColumn(name = "system_user_id")
     )
-    private List<SystemUserEntity> systemsUsers;
+    private List<SystemUserEntity> systemsUsers;*/
     
     @OneToMany(mappedBy = "systemUnit", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SystemProgramEntity> systemPrograms = new ArrayList<>();

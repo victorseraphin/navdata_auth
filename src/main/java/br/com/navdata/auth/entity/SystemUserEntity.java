@@ -1,7 +1,9 @@
 package br.com.navdata.auth.entity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -101,7 +103,7 @@ public class SystemUserEntity {
     @JoinTable(name = "system_user_system_program",
         joinColumns = @JoinColumn(name = "system_user_id"),
         inverseJoinColumns = @JoinColumn(name = "system_program_id"))
-    private List<SystemProgramEntity> systemPrograms;
+    private Set<SystemProgramEntity> systemPrograms = new HashSet<>();
 
 	public Integer getId() {
 		return id;
@@ -263,13 +265,15 @@ public class SystemUserEntity {
 		this.systemGroups = systemGroups;
 	}
 
-	public List<SystemProgramEntity> getSystemPrograms() {
+	public Set<SystemProgramEntity> getSystemPrograms() {
 		return systemPrograms;
 	}
 
-	public void setSystemPrograms(List<SystemProgramEntity> systemPrograms) {
+	public void setSystemPrograms(Set<SystemProgramEntity> systemPrograms) {
 		this.systemPrograms = systemPrograms;
 	}
+
+	
 
 	
 }

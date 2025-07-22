@@ -10,8 +10,14 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import br.com.navdata.auth.context.TokenContext;
+import br.com.navdata.auth.request.GroupPermissionRequest;
 import br.com.navdata.auth.request.SystemUserRequest;
+import br.com.navdata.auth.request.UserGroupRequest;
+import br.com.navdata.auth.request.UserPermissionRequest;
+import br.com.navdata.auth.response.GroupPermissionResponse;
 import br.com.navdata.auth.response.SystemUserResponse;
+import br.com.navdata.auth.response.UserGroupResponse;
+import br.com.navdata.auth.response.UserPermissionResponse;
 import br.com.navdata.auth.service.SystemUserService;
 
 import java.util.List;
@@ -59,5 +65,31 @@ public class SystemUserController {
     	systemUserService.deletar(id,unitId);
         return ResponseEntity.noContent().build();
     }
+
+    
+    @GetMapping("/{userId}/permissions")
+    public List<UserPermissionResponse> listPermissions(@PathVariable Integer userId) {
+        return systemUserService.getPermissionsByUser(userId);
+    }
+    
+    @PutMapping("/{userId}/permissions")
+    public void updatePermissions(@PathVariable Integer userId, @RequestBody List<UserPermissionRequest> permissions) {
+    	systemUserService.updatePermissionsByUser(userId, permissions);//
+    }
+
+    
+    @GetMapping("/{userId}/groups")
+    public List<UserGroupResponse> listGroups(@PathVariable Integer userId) {
+        return systemUserService.getGroupsByUser(userId);
+    }
+    
+    @PutMapping("/{userId}/groups")
+    public void updateGroups(@PathVariable Integer userId, @RequestBody List<UserGroupRequest> groups) {
+    	systemUserService.updateGroupsByUser(userId, groups);//
+    }
+    
+
+    
+   
 }
 

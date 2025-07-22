@@ -1,6 +1,6 @@
 package br.com.navdata.auth.response;
 
-public class ProgramPermissionResponse {
+public class UserPermissionResponse {
 	private Integer programId;
 	private String name;
 	private String path;

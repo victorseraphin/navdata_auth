@@ -1,6 +1,6 @@
 package br.com.navdata.auth.request;
 
-public class ProgramPermissionRequest {
+public class UserGroupRequest {
 	private Integer programId;
 	private boolean permitted;
 

@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import br.com.navdata.auth.context.TokenContext;
-import br.com.navdata.auth.request.ProgramPermissionRequest;
+import br.com.navdata.auth.request.GroupPermissionRequest;
 import br.com.navdata.auth.request.SystemGroupRequest;
-import br.com.navdata.auth.response.ProgramPermissionResponse;
+import br.com.navdata.auth.response.GroupPermissionResponse;
 import br.com.navdata.auth.response.SystemGroupResponse;
 import br.com.navdata.auth.service.SystemGroupService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,12 +62,12 @@ public class SystemGroupController {
     }
     
     @GetMapping("/{groupId}/permissions")
-    public List<ProgramPermissionResponse> listPermissions(@PathVariable Integer groupId) {
+    public List<GroupPermissionResponse> listPermissions(@PathVariable Integer groupId) {
         return systemGroupService.getPermissionsByGroup(groupId);
     }
     
     @PutMapping("/{groupId}/permissions")
-    public void updatePermissions(@PathVariable Integer groupId, @RequestBody List<ProgramPermissionRequest> permissions) {
+    public void updatePermissions(@PathVariable Integer groupId, @RequestBody List<GroupPermissionRequest> permissions) {
         systemGroupService.updatePermissions(groupId, permissions);//
     }
 }

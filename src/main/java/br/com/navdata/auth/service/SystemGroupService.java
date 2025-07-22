@@ -15,9 +15,9 @@ import br.com.navdata.auth.repository.SystemGroupRepository;
 import br.com.navdata.auth.repository.SystemProgramRepository;
 import br.com.navdata.auth.repository.SystemRepository;
 import br.com.navdata.auth.repository.SystemUnitRepository;
-import br.com.navdata.auth.request.ProgramPermissionRequest;
+import br.com.navdata.auth.request.GroupPermissionRequest;
 import br.com.navdata.auth.request.SystemGroupRequest;
-import br.com.navdata.auth.response.ProgramPermissionResponse;
+import br.com.navdata.auth.response.GroupPermissionResponse;
 import br.com.navdata.auth.response.SystemGroupResponse;
 import jakarta.transaction.Transactional;
 
@@ -115,7 +115,7 @@ public class SystemGroupService {
         
     }
     
-    public List<ProgramPermissionResponse> getPermissionsByGroup(Integer groupId) {
+    public List<GroupPermissionResponse> getPermissionsByGroup(Integer groupId) {
         SystemGroupEntity group = systemGroupRepository.findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Grupo não encontrado"));
 
@@ -128,7 +128,7 @@ public class SystemGroupService {
                 .collect(Collectors.toSet());
 
         return allPrograms.stream().map(program -> {
-            ProgramPermissionResponse dto = new ProgramPermissionResponse();
+            GroupPermissionResponse dto = new GroupPermissionResponse();
             dto.setProgramId(program.getId());
             dto.setName(program.getName());
             dto.setPath(program.getPath());
@@ -139,13 +139,13 @@ public class SystemGroupService {
     }
     
     @Transactional
-    public void updatePermissions(Integer groupId, List<ProgramPermissionRequest> permissions) {
+    public void updatePermissions(Integer groupId, List<GroupPermissionRequest> permissions) {
         SystemGroupEntity group = systemGroupRepository.findById(groupId)
                 .orElseThrow(() -> new RuntimeException("Grupo não encontrado"));
 
         List<Integer> programIds = permissions.stream()
-                .filter(ProgramPermissionRequest::isPermitted)
-                .map(ProgramPermissionRequest::getProgramId)
+                .filter(GroupPermissionRequest::isPermitted)
+                .map(GroupPermissionRequest::getProgramId)
                 .collect(Collectors.toList());
         
         System.out.println("programIds:"+programIds);

@@ -154,7 +154,7 @@ public class AuthService {
 			// Cria automaticamente o System Auth/Core
 			if (!systemUnitRepository.existsByDocumento("0000000000")) {
 				SystemUnitEntity unit = new SystemUnitEntity();
-				unit.setName("NavSystemCore");
+				unit.setName("NavData");
 				unit.setDocumento("0000000000");
 				unit.setInscricao("0000000000");
 				unit.setMatricula("0000000000");

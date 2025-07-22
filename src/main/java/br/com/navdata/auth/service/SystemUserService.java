@@ -1,7 +1,10 @@
 package br.com.navdata.auth.service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -11,12 +14,24 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import br.com.navdata.auth.entity.SystemGroupEntity;
+import br.com.navdata.auth.entity.SystemProgramEntity;
 import br.com.navdata.auth.entity.SystemUserEntity;
 import br.com.navdata.auth.mapper.SystemUserMapper;
+import br.com.navdata.auth.repository.SystemGroupRepository;
+import br.com.navdata.auth.repository.SystemProgramRepository;
+import br.com.navdata.auth.repository.SystemRepository;
 import br.com.navdata.auth.repository.SystemUnitRepository;
 import br.com.navdata.auth.repository.SystemUserRepository;
+import br.com.navdata.auth.request.GroupPermissionRequest;
 import br.com.navdata.auth.request.SystemUserRequest;
+import br.com.navdata.auth.request.UserGroupRequest;
+import br.com.navdata.auth.request.UserPermissionRequest;
+import br.com.navdata.auth.response.GroupPermissionResponse;
 import br.com.navdata.auth.response.SystemUserResponse;
+import br.com.navdata.auth.response.UserGroupResponse;
+import br.com.navdata.auth.response.UserPermissionResponse;
+import jakarta.transaction.Transactional;
 
 @Service
 public class SystemUserService {
@@ -26,6 +41,15 @@ public class SystemUserService {
 
 	@Autowired
     private SystemUnitRepository systemUnitRepository;
+	
+	@Autowired
+    private SystemGroupRepository systemGroupRepository;
+	
+	@Autowired
+    private SystemRepository systemRepository;
+	
+	@Autowired
+    private SystemProgramRepository systemProgramRepository;
 	
 	@Autowired
 	private SystemUserMapper mapper;
@@ -99,5 +123,95 @@ public class SystemUserService {
         systemUserRepository.save(userEntity); 
 
         
+    }
+    
+    public List<UserPermissionResponse> getPermissionsByUser(Integer userId) {
+        SystemUserEntity userEntity = systemUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        List<SystemProgramEntity> allPrograms = systemProgramRepository.findBySystemUnit_IdAndDeletedAtIsNullAndSystem_Id(
+        		userEntity.getSystemUnit().getId(), userEntity.getSystems().get(0).getId()
+        );
+
+        Set<Integer> permittedIds = userEntity.getSystemPrograms().stream()
+                .map(SystemProgramEntity::getId)
+                .collect(Collectors.toSet());
+
+        return allPrograms.stream().map(program -> {
+            UserPermissionResponse dto = new UserPermissionResponse();
+            dto.setProgramId(program.getId());
+            dto.setName(program.getName());
+            dto.setPath(program.getPath());
+            dto.setMethod(program.getMethod());
+            dto.setPermitted(permittedIds.contains(program.getId()));
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public void updatePermissionsByUser(Integer groupId, List<UserPermissionRequest> permissions) {
+        SystemUserEntity userEntity = systemUserRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Grupo não encontrado"));
+
+        List<Integer> programIds = permissions.stream()
+                .filter(UserPermissionRequest::isPermitted)
+                .map(UserPermissionRequest::getProgramId)
+                .collect(Collectors.toList());
+
+        List<SystemProgramEntity> permittedPrograms = systemProgramRepository.findAllById(programIds);
+        
+        if (permittedPrograms.isEmpty()) {
+            System.out.println("Nenhum programa encontrado com os IDs: " + programIds);
+            throw new RuntimeException("Programas não encontrados.");
+        }
+
+        userEntity.setSystemPrograms(new HashSet<>(permittedPrograms));
+        systemUserRepository.save(userEntity);
+    }
+    
+
+    
+    public List<UserGroupResponse> getGroupsByUser(Integer userId) {
+        SystemUserEntity userEntity = systemUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        List<SystemProgramEntity> allPrograms = systemProgramRepository.findBySystemUnit_IdAndDeletedAtIsNullAndSystem_Id(
+        		userEntity.getSystemUnit().getId(), userEntity.getSystems().get(0).getId()
+        );
+
+        Set<Integer> permittedIds = userEntity.getSystemPrograms().stream()
+                .map(SystemProgramEntity::getId)
+                .collect(Collectors.toSet());
+
+        return allPrograms.stream().map(program -> {
+            UserGroupResponse dto = new UserGroupResponse();
+            dto.setProgramId(program.getId());
+            dto.setName(program.getName());
+            dto.setPath(program.getPath());
+            dto.setMethod(program.getMethod());
+            dto.setPermitted(permittedIds.contains(program.getId()));
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public void updateGroupsByUser(Integer groupId, List<UserGroupRequest> permissions) {
+        SystemUserEntity userEntity = systemUserRepository.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Grupo não encontrado"));
+
+        List<Integer> programIds = permissions.stream()
+                .filter(UserGroupRequest::isPermitted)
+                .map(UserGroupRequest::getProgramId)
+                .collect(Collectors.toList());
+
+        List<SystemProgramEntity> permittedPrograms = systemProgramRepository.findAllById(programIds);
+        
+        if (permittedPrograms.isEmpty()) {
+            System.out.println("Nenhum programa encontrado com os IDs: " + programIds);
+            throw new RuntimeException("Programas não encontrados.");
+        }
+
+        userEntity.setSystemPrograms(new HashSet<>(permittedPrograms));
+        systemUserRepository.save(userEntity);
     }
 }

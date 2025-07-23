@@ -1,15 +1,15 @@
 package br.com.navdata.auth.request;
 
 public class UserGroupRequest {
-	private Integer programId;
+	private Integer groupId;
 	private boolean permitted;
 
-	public Integer getProgramId() {
-		return programId;
+	public Integer getGroupId() {
+		return groupId;
 	}
 
-	public void setProgramId(Integer programId) {
-		this.programId = programId;
+	public void setGroupId(Integer groupId) {
+		this.groupId = groupId;
 	}
 
 	public boolean isPermitted() {

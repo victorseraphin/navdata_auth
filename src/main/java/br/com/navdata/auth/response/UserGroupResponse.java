@@ -1,18 +1,16 @@
 package br.com.navdata.auth.response;
 
 public class UserGroupResponse {
-	private Integer programId;
+	private Integer groupId;
 	private String name;
-	private String path;
-	private String method;
 	private boolean permitted;
 
-	public Integer getProgramId() {
-		return programId;
+	public Integer getGroupId() {
+		return groupId;
 	}
 
-	public void setProgramId(Integer integer) {
-		this.programId = integer;
+	public void setGroupId(Integer groupId) {
+		this.groupId = groupId;
 	}
 
 	public String getName() {
@@ -21,22 +19,6 @@ public class UserGroupResponse {
 
 	public void setName(String name) {
 		this.name = name;
-	}
-
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
-	public String getMethod() {
-		return method;
-	}
-
-	public void setMethod(String method) {
-		this.method = method;
 	}
 
 	public boolean isPermitted() {

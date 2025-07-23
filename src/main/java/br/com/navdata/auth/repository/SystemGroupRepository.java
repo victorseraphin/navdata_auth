@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import br.com.navdata.auth.entity.SystemGroupEntity;
+import br.com.navdata.auth.entity.SystemProgramEntity;
 public interface SystemGroupRepository extends JpaRepository<SystemGroupEntity, Integer> {
 
 	//List<SystemGroupEntity> findAllByDeletedAtIsNull();
@@ -17,5 +18,7 @@ public interface SystemGroupRepository extends JpaRepository<SystemGroupEntity, 
 	List<SystemGroupEntity> findAllBySystemUnit_IdAndDeletedAtIsNull(Integer unitId);
 	
 	Optional<SystemGroupEntity> findByIdAndDeletedAtIsNullAndSystemUnit_Id(Integer id, Integer unitId);	
+	
+	List<SystemGroupEntity> findBySystemUnit_IdAndDeletedAtIsNullAndSystem_Id(Integer unitId, Integer systemId);
 
 }

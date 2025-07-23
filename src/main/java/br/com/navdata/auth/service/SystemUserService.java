@@ -175,43 +175,41 @@ public class SystemUserService {
         SystemUserEntity userEntity = systemUserRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        List<SystemProgramEntity> allPrograms = systemProgramRepository.findBySystemUnit_IdAndDeletedAtIsNullAndSystem_Id(
+        List<SystemGroupEntity> allGroups = systemGroupRepository.findBySystemUnit_IdAndDeletedAtIsNullAndSystem_Id(
         		userEntity.getSystemUnit().getId(), userEntity.getSystems().get(0).getId()
         );
 
-        Set<Integer> permittedIds = userEntity.getSystemPrograms().stream()
-                .map(SystemProgramEntity::getId)
+        Set<Integer> permittedIds = userEntity.getSystemGroups().stream()
+                .map(SystemGroupEntity::getId)
                 .collect(Collectors.toSet());
 
-        return allPrograms.stream().map(program -> {
+        return allGroups.stream().map(program -> {
             UserGroupResponse dto = new UserGroupResponse();
-            dto.setProgramId(program.getId());
+            dto.setGroupId(program.getId());
             dto.setName(program.getName());
-            dto.setPath(program.getPath());
-            dto.setMethod(program.getMethod());
             dto.setPermitted(permittedIds.contains(program.getId()));
             return dto;
         }).collect(Collectors.toList());
     }
     
     @Transactional
-    public void updateGroupsByUser(Integer groupId, List<UserGroupRequest> permissions) {
-        SystemUserEntity userEntity = systemUserRepository.findById(groupId)
-                .orElseThrow(() -> new RuntimeException("Grupo não encontrado"));
+    public void updateGroupsByUser(Integer userId, List<UserGroupRequest> groups) {
+        SystemUserEntity userEntity = systemUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        List<Integer> programIds = permissions.stream()
+        List<Integer> groupsIds = groups.stream()
                 .filter(UserGroupRequest::isPermitted)
-                .map(UserGroupRequest::getProgramId)
+                .map(UserGroupRequest::getGroupId)
                 .collect(Collectors.toList());
 
-        List<SystemProgramEntity> permittedPrograms = systemProgramRepository.findAllById(programIds);
+        List<SystemGroupEntity> permittedGroups = systemGroupRepository.findAllById(groupsIds);
         
-        if (permittedPrograms.isEmpty()) {
-            System.out.println("Nenhum programa encontrado com os IDs: " + programIds);
-            throw new RuntimeException("Programas não encontrados.");
+        if (permittedGroups.isEmpty()) {
+            System.out.println("Nenhum grupo encontrado com os IDs: " + groupsIds);
+            throw new RuntimeException("Grupos não encontrados.");
         }
 
-        userEntity.setSystemPrograms(new HashSet<>(permittedPrograms));
+        userEntity.setSystemGroups(new HashSet<>(permittedGroups));
         systemUserRepository.save(userEntity);
     }
 }

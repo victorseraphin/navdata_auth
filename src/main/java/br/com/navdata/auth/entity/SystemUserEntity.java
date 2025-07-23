@@ -97,7 +97,8 @@ public class SystemUserEntity {
     @JoinTable(name = "system_user_system_group",
         joinColumns = @JoinColumn(name = "system_user_id"),
         inverseJoinColumns = @JoinColumn(name = "system_group_id"))
-    private List<SystemGroupEntity> systemGroups;
+    //private List<SystemGroupEntity> systemGroups;
+    private Set<SystemGroupEntity> systemGroups = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "system_user_system_program",
@@ -191,14 +192,6 @@ public class SystemUserEntity {
 
 	public void setGoogleId(String googleId) {
 		this.googleId = googleId;
-	}	
-
-	public boolean isActive() {
-		return active;
-	}
-
-	public void setActive(boolean active) {
-		this.active = active;
 	}
 
 	public String getRememberToken() {
@@ -215,6 +208,14 @@ public class SystemUserEntity {
 
 	public void setMaster(boolean isMaster) {
 		this.isMaster = isMaster;
+	}
+
+	public boolean isActive() {
+		return active;
+	}
+
+	public void setActive(boolean active) {
+		this.active = active;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -257,11 +258,11 @@ public class SystemUserEntity {
 		this.systems = systems;
 	}
 
-	public List<SystemGroupEntity> getSystemGroups() {
+	public Set<SystemGroupEntity> getSystemGroups() {
 		return systemGroups;
 	}
 
-	public void setSystemGroups(List<SystemGroupEntity> systemGroups) {
+	public void setSystemGroups(Set<SystemGroupEntity> systemGroups) {
 		this.systemGroups = systemGroups;
 	}
 
@@ -274,6 +275,6 @@ public class SystemUserEntity {
 	}
 
 	
-
-	
+    
+    
 }

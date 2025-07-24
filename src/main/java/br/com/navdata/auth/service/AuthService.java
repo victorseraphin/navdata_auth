@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import org.springframework.web.server.ResponseStatusException;
 import br.com.navdata.auth.entity.TokenEntity;
 import br.com.navdata.auth.exception.InvalidCredentialsException;
 import br.com.navdata.auth.mapper.AuthUserMapper;
-import br.com.navdata.auth.mapper.SystemUserMapper;
 import br.com.navdata.auth.entity.RefreshTokenEntity;
 import br.com.navdata.auth.entity.SystemEntity;
 import br.com.navdata.auth.entity.SystemUnitEntity;
@@ -170,7 +170,7 @@ public class AuthService {
 				system.setName("NavSystemCore");
 				system.setSystemUnit(systemUserEntity.getSystemUnit());
 				systemRepository.save(system);
-				systemUserEntity.setSystems(Collections.singletonList(system));
+				systemUserEntity.setSystems(new HashSet<>(Collections.singleton(system)));
 			}
 			
 			systemUserEntity.setMaster(true);

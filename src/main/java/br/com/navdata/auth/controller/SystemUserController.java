@@ -14,10 +14,12 @@ import br.com.navdata.auth.request.GroupPermissionRequest;
 import br.com.navdata.auth.request.SystemUserRequest;
 import br.com.navdata.auth.request.UserGroupRequest;
 import br.com.navdata.auth.request.UserPermissionRequest;
+import br.com.navdata.auth.request.UserSystemRequest;
 import br.com.navdata.auth.response.GroupPermissionResponse;
 import br.com.navdata.auth.response.SystemUserResponse;
 import br.com.navdata.auth.response.UserGroupResponse;
 import br.com.navdata.auth.response.UserPermissionResponse;
+import br.com.navdata.auth.response.UserSystemResponse;
 import br.com.navdata.auth.service.SystemUserService;
 
 import java.util.List;
@@ -86,6 +88,17 @@ public class SystemUserController {
     @PutMapping("/{userId}/groups")
     public void updateGroups(@PathVariable Integer userId, @RequestBody List<UserGroupRequest> groups) {
     	systemUserService.updateGroupsByUser(userId, groups);//
+    }
+
+    
+    @GetMapping("/{userId}/systems")
+    public List<UserSystemResponse> listSystems(@PathVariable Integer userId) {
+        return systemUserService.getSystemsByUser(userId);
+    }
+    
+    @PutMapping("/{userId}/systems")
+    public void updateSystems(@PathVariable Integer userId, @RequestBody List<UserSystemRequest> systems) {
+    	systemUserService.updateSystemsByUser(userId, systems);//
     }
     
 

@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import br.com.navdata.auth.entity.SystemEntity;
 import br.com.navdata.auth.entity.SystemGroupEntity;
 import br.com.navdata.auth.entity.SystemProgramEntity;
 import br.com.navdata.auth.entity.SystemUserEntity;
@@ -27,10 +28,12 @@ import br.com.navdata.auth.request.GroupPermissionRequest;
 import br.com.navdata.auth.request.SystemUserRequest;
 import br.com.navdata.auth.request.UserGroupRequest;
 import br.com.navdata.auth.request.UserPermissionRequest;
+import br.com.navdata.auth.request.UserSystemRequest;
 import br.com.navdata.auth.response.GroupPermissionResponse;
 import br.com.navdata.auth.response.SystemUserResponse;
 import br.com.navdata.auth.response.UserGroupResponse;
 import br.com.navdata.auth.response.UserPermissionResponse;
+import br.com.navdata.auth.response.UserSystemResponse;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -128,9 +131,13 @@ public class SystemUserService {
     public List<UserPermissionResponse> getPermissionsByUser(Integer userId) {
         SystemUserEntity userEntity = systemUserRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        
+        Set<Integer> systemIds = userEntity.getSystems().stream()
+        	    .map(SystemEntity::getId)
+        	    .collect(Collectors.toSet());
 
-        List<SystemProgramEntity> allPrograms = systemProgramRepository.findBySystemUnit_IdAndDeletedAtIsNullAndSystem_Id(
-        		userEntity.getSystemUnit().getId(), userEntity.getSystems().get(0).getId()
+        List<SystemProgramEntity> allPrograms = systemProgramRepository.findBySystemUnit_IdAndDeletedAtIsNullAndSystem_IdIn(
+        		userEntity.getSystemUnit().getId(), systemIds
         );
 
         Set<Integer> permittedIds = userEntity.getSystemPrograms().stream()
@@ -174,9 +181,13 @@ public class SystemUserService {
     public List<UserGroupResponse> getGroupsByUser(Integer userId) {
         SystemUserEntity userEntity = systemUserRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+        
+        Set<Integer> systemIds = userEntity.getSystems().stream()
+        	    .map(SystemEntity::getId)
+        	    .collect(Collectors.toSet());
 
-        List<SystemGroupEntity> allGroups = systemGroupRepository.findBySystemUnit_IdAndDeletedAtIsNullAndSystem_Id(
-        		userEntity.getSystemUnit().getId(), userEntity.getSystems().get(0).getId()
+        List<SystemGroupEntity> allGroups = systemGroupRepository.findBySystemUnit_IdAndDeletedAtIsNullAndSystem_IdIn(
+        		userEntity.getSystemUnit().getId(), systemIds
         );
 
         Set<Integer> permittedIds = userEntity.getSystemGroups().stream()
@@ -210,6 +221,46 @@ public class SystemUserService {
         }
 
         userEntity.setSystemGroups(new HashSet<>(permittedGroups));
+        systemUserRepository.save(userEntity);
+    }
+    
+    public List<UserSystemResponse> getSystemsByUser(Integer userId) {
+        SystemUserEntity userEntity = systemUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        List<SystemEntity> allSystems = systemRepository.findAllBySystemUnit_IdAndDeletedAtIsNull(userEntity.getSystemUnit().getId());
+
+        Set<Integer> permittedIds = userEntity.getSystems().stream()
+                .map(SystemEntity::getId)
+                .collect(Collectors.toSet());
+
+        return allSystems.stream().map(program -> {
+            UserSystemResponse dto = new UserSystemResponse();
+            dto.setSystemId(program.getId());
+            dto.setName(program.getName());
+            dto.setPermitted(permittedIds.contains(program.getId()));
+            return dto;
+        }).collect(Collectors.toList());
+    }
+    
+    @Transactional
+    public void updateSystemsByUser(Integer userId, List<UserSystemRequest> systems) {
+        SystemUserEntity userEntity = systemUserRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+        List<Integer> systemsIds = systems.stream()
+                .filter(UserSystemRequest::isPermitted)
+                .map(UserSystemRequest::getSystemId)
+                .collect(Collectors.toList());
+
+        List<SystemEntity> permittedSystems = systemRepository.findAllById(systemsIds);
+        
+        if (permittedSystems.isEmpty()) {
+            System.out.println("Nenhum sistema encontrado com os IDs: " + systemsIds);
+            throw new RuntimeException("Sistemas não encontrados.");
+        }
+
+        userEntity.setSystems(new HashSet<>(permittedSystems));
         systemUserRepository.save(userEntity);
     }
 }

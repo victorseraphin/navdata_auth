@@ -2,6 +2,7 @@ package br.com.navdata.auth.repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -20,6 +21,8 @@ public interface SystemProgramRepository extends JpaRepository<SystemProgramEnti
 	Optional<SystemProgramEntity> findByIdAndDeletedAtIsNullAndSystemUnit_Id(Integer id, Integer unitId);	
 	
 	List<SystemProgramEntity> findBySystemUnit_IdAndDeletedAtIsNullAndSystem_Id(Integer unitId, Integer systemId);
+	
+	List<SystemProgramEntity> findBySystemUnit_IdAndDeletedAtIsNullAndSystem_IdIn(Integer unitId, Set<Integer> systemId);
 
 
 }

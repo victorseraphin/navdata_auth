@@ -91,7 +91,7 @@ public class SystemUserEntity {
     @JoinTable(name = "system_user_system",
         joinColumns = @JoinColumn(name = "system_user_id"),
         inverseJoinColumns = @JoinColumn(name = "system_id"))
-    private List<SystemEntity> systems;
+    private Set<SystemEntity> systems = new HashSet<>();
 
     @ManyToMany
     @JoinTable(name = "system_user_system_group",
@@ -248,13 +248,13 @@ public class SystemUserEntity {
 
 	public void setSystemUnit(SystemUnitEntity systemUnit) {
 		this.systemUnit = systemUnit;
-	}
+	}	
 
-	public List<SystemEntity> getSystems() {
+	public Set<SystemEntity> getSystems() {
 		return systems;
 	}
 
-	public void setSystems(List<SystemEntity> systems) {
+	public void setSystems(Set<SystemEntity> systems) {
 		this.systems = systems;
 	}
 

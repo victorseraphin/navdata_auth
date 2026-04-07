@@ -147,4 +147,10 @@ public class AuthController {
 		return ResponseEntity.ok(user);
 
 	}
+	
+	@PostMapping("/google")
+	public ResponseEntity<AuthResponse> googleLogin(@RequestBody Map<String, String> request, HttpServletResponse response, @RequestHeader("X-System-Name") String systemName) {
+		System.out.println("aqui");
+	    return ResponseEntity.ok(authService.loginGoogle(request.get("token"), response, systemName));
+	}
 }

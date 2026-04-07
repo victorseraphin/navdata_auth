@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -33,6 +34,12 @@ import br.com.navdata.auth.response.AuthUserResponse;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 
 @Service
 @RequiredArgsConstructor
@@ -60,6 +67,9 @@ public class AuthService {
 	private AuthUserMapper mapper;
 
 	private final BCryptPasswordEncoder passwordEncoder;
+	
+	@Value("${GOOGLE_CLIENT_ID}")
+    private String GOOGLE_CLIENT_ID;
 
 	public AuthService() {
 		this.passwordEncoder = new BCryptPasswordEncoder();
@@ -93,7 +103,7 @@ public class AuthService {
 		}
 
 		// Geração de tokens
-		String accessToken = jwtService.generateAccessToken(userEntity.getEmail());
+		/*String accessToken = jwtService.generateAccessToken(userEntity.getEmail());
 		String refreshToken = jwtService.generateRefreshToken();
 
 		LocalDateTime inicio = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
@@ -127,9 +137,11 @@ public class AuthService {
 		cookie.setSecure(false); // só coloque true se estiver usando HTTPS
 		response.addCookie(cookie);		
 
-		
+		*/
 
-		return new AuthResponse(accessToken/*, userResponse*/);
+		//return new AuthResponse(accessToken/*, userResponse*/);
+		
+		return createSession(userEntity, system, response);
 	}
 
 	public boolean checkPassword(SystemUserEntity user, String rawPassword) {
@@ -137,7 +149,7 @@ public class AuthService {
 	}
 
 	public SystemUserEntity findByEmail(String email) {
-		return systemUserRepository.findByEmail(email);
+		return systemUserRepository.findByEmailAndDeletedAtIsNull(email);
 	}
 
 	public AuthUserResponse registrar(AuthUserRequest request) {
@@ -245,4 +257,95 @@ public class AuthService {
             refreshTokenRepository.save(refreshToken);
         });
     }
+	
+	public AuthResponse loginGoogle(String googleToken, HttpServletResponse response, String systemName) {
+		try {
+			// 1. Validar o token com o Google
+	        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+	                .setAudience(Collections.singletonList(GOOGLE_CLIENT_ID))
+	                .build();
+
+	        GoogleIdToken idToken = verifier.verify(googleToken);
+	        
+	        if (idToken == null) {
+	            throw new InvalidCredentialsException("Token do Google inválido");
+	        }
+
+	        Payload payload = idToken.getPayload();
+	        String email = payload.getEmail();
+
+	        // 2. Buscar o usuário no seu banco pelo email vindo do Google
+	        SystemUserEntity userEntity = systemUserRepository.findByEmailAndDeletedAtIsNull(email);
+
+	        if (userEntity == null) {
+	            // Opcional: Aqui você pode decidir se cria o usuário automaticamente (Auto-Register)
+	            // ou se barra o acesso por ele não existir no seu sistema.
+	            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário não cadastrado no sistema");
+	        }
+
+	        if (!userEntity.isActive()) {
+	            throw new InvalidCredentialsException("Usuário está inativo");
+	        }
+
+	        // 3. Validar acesso ao sistema (Reaproveitando sua lógica atual)
+	        SystemEntity system = systemRepository.findFirstByNameAndDeletedAtIsNull(systemName);
+	        if (system == null) {
+	            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Sistema não encontrado");
+	        }
+
+	        boolean temAcesso = userEntity.getSystems().stream().anyMatch(s -> s.getId().equals(system.getId()));
+	        if (!temAcesso) {
+	            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Usuário sem acesso a este sistema");
+	        }
+
+	        return createSession(userEntity, system, response);
+
+	    } catch (Exception e) {
+	        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Falha na autenticação Google: " + e.getMessage());
+	    }
+	}
+	
+	// Método privado para centralizar a criação da sessão
+	private AuthResponse createSession(SystemUserEntity userEntity, SystemEntity system, HttpServletResponse response) {
+		
+		tokenRepository.findBySystemUserIdAndSystemIdAndValidTrue(userEntity.getId(), system.getId())
+        .forEach(t -> {
+            t.setValid(false);
+            t.setFimVigencia(LocalDateTime.now());
+            tokenRepository.save(t);
+        });
+		
+	    String accessToken = jwtService.generateAccessToken(userEntity.getEmail());
+	    String refreshToken = jwtService.generateRefreshToken();
+
+	    LocalDateTime inicio = LocalDateTime.now(ZoneId.of("America/Sao_Paulo"));
+	    LocalDateTime fim = inicio.plusHours(24);
+	    Instant expiryDate = Instant.now().plus(7, ChronoUnit.DAYS);
+	    
+	    RefreshTokenEntity refreshTokenEntity = new RefreshTokenEntity();
+	    refreshTokenEntity.setToken(refreshToken);
+	    refreshTokenEntity.setUserEmail(userEntity.getEmail());
+	    refreshTokenEntity.setExpiryDate(expiryDate);
+	    refreshTokenEntity.setSystemUnitId(userEntity.getSystemUnit().getId());
+	    refreshTokenEntity.setSystemUserId(userEntity.getId());
+	    refreshTokenEntity.setSystemId(system.getId());
+	    refreshTokenEntity.setSystemName(system.getName());
+	    refreshTokenEntity.setValid(true);
+
+	    refreshTokenEntity = refreshTokenRepository.save(refreshTokenEntity);
+
+	    TokenEntity tokenEntity = new TokenEntity(accessToken, userEntity.getEmail(), inicio, fim, true,
+	            userEntity.getSystemUnit().getId(), userEntity.getId(), system.getId(), system.getName(), refreshTokenEntity);
+	    tokenRepository.save(tokenEntity);
+
+	    // Configuração do Cookie
+	    Cookie cookie = new Cookie("refreshToken", refreshToken);
+	    cookie.setHttpOnly(true);
+	    cookie.setPath("/");
+	    cookie.setMaxAge(7 * 24 * 60 * 60);
+	    cookie.setSecure(false); 
+	    response.addCookie(cookie);
+
+	    return new AuthResponse(accessToken);
+	}
 }

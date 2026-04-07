@@ -10,7 +10,7 @@ public class SystemUserRequest {
 	private String razao;
 	private String password;
 	private Integer systemUnitId;
-	private String active;
+	private boolean active;
 
 	public Integer getId() {
 		return id;
@@ -68,11 +68,11 @@ public class SystemUserRequest {
 		this.systemUnitId = systemUnitId;
 	}
 
-	public String getActive() {
+	public boolean getActive() {
 		return active;
 	}
 
-	public void setActive(String active) {
+	public void setActive(boolean active) {
 		this.active = active;
 	}
 

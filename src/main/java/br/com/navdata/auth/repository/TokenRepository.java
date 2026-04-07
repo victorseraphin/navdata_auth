@@ -1,6 +1,7 @@
 package br.com.navdata.auth.repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,5 +14,7 @@ public interface TokenRepository extends JpaRepository<TokenEntity, Long> {
     Optional<TokenEntity> findByTokenAndValidTrue(String token);    
 
     Optional<TokenEntity> findByToken(String token);
+
+    List<TokenEntity> findBySystemUserIdAndSystemIdAndValidTrue(Integer userId, Integer systemId);
     
 }

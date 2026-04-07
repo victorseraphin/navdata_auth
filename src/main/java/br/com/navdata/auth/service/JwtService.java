@@ -40,6 +40,8 @@ public class JwtService {
     public String generateAccessToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
+                .setId(UUID.randomUUID().toString()) // Adiciona um ID único ao corpo do JWT
+                .setIssuedAt(new Date()) // É bom registrar quando foi criado também
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenValidity))
                 .signWith(secretKey, SignatureAlgorithm.HS512)
                 .compact();

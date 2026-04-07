@@ -17,6 +17,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import br.com.navdata.auth.entity.SystemEntity;
 import br.com.navdata.auth.entity.SystemGroupEntity;
 import br.com.navdata.auth.entity.SystemProgramEntity;
+import br.com.navdata.auth.entity.SystemUnitEntity;
 import br.com.navdata.auth.entity.SystemUserEntity;
 import br.com.navdata.auth.mapper.SystemUserMapper;
 import br.com.navdata.auth.repository.SystemGroupRepository;
@@ -93,8 +94,12 @@ public class SystemUserService {
 
         SystemUserEntity entity = new SystemUserEntity();
         request.setPassword(passwordEncoder.encode(request.getPassword())); 
-        request.setActive("Y");
+        //request.setActive("Y");
         mapper.createFromDTO(request, entity);
+        
+        SystemUnitEntity unit = systemUnitRepository.findById(request.getSystemUnitId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Problema de validade de Empresa. Consulte o Administrador do Sistema!"));
+
+            entity.setSystemUnit(unit);
 
         return mapper.toResponse(systemUserRepository.save(entity));
     }
@@ -105,6 +110,7 @@ public class SystemUserService {
         	if (request.getSystemUnitId() != unitId || entity.getSystemUnit().getId() != unitId) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Problema de validade de Empresa. Consulte o Administrador do Sistema!");
             }
+            request.setPassword(passwordEncoder.encode(request.getPassword())); 
         	
             mapper.updateFromDTO(request, entity);
             entity.setUpdatedAt(LocalDateTime.now()); 

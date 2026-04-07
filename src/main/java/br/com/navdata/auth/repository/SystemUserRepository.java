@@ -12,6 +12,8 @@ public interface SystemUserRepository extends JpaRepository<SystemUserEntity, In
 	
 	@EntityGraph(attributePaths = "systemUnit")
     SystemUserEntity findByEmail(String email);
+	
+    SystemUserEntity findByEmailAndDeletedAtIsNull(String email);
     
     boolean existsByEmailAndDeletedAtIsNull(String email);
     

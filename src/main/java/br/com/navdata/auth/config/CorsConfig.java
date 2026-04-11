@@ -14,7 +14,7 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**") // libera todas as rotas
-                        .allowedOrigins("http://localhost:3000") // frontend
+                        .allowedOrigins("http://localhost:3000", "https://*.navdata.com.br") // frontend
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true); // se você usar cookies ou Authorization
